@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+
+# ignore datasets because wtf
+dataset*
+
 # C extensions
 *.so
 
