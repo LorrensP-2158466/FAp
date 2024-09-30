@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.vscode
+
+# nixos shenanigans
+shell.nix
 
 # ignore datasets because wtf
 datasets/

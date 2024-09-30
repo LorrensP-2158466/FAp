@@ -1,6 +1,5 @@
-from parseargs import argparse
+import argparse
 import data_exploration
-
 
 def initialize_args_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="BDA Project frequent itemsets and apriori")
@@ -54,8 +53,6 @@ def main():
         explorer.perform()
 
 
-
-    
 
 
 if __name__ == "__main__":
