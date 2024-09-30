@@ -15,7 +15,7 @@ def initialize_args_parser() -> argparse.ArgumentParser:
     group.add_argument(
         "--data-expl",
         nargs="*",
-        choices=["all", "unique_authors", "mean_authors", "median_authors", "amount_papers"],
+        choices=data_exploration.DataExplorer.choices,
         help="Choose one or more data explorations to perform on the dataset.",
         default=["default"],
     )
@@ -50,7 +50,7 @@ def main():
 
     if args.data_expl:
         explorer = data_exploration.DataExplorer(args.dataset)
-        explorer.perform()
+        print(explorer.perform(args.data_expl))
 
 
 
