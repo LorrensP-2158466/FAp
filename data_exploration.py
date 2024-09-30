@@ -29,9 +29,7 @@ class DataExplorer():
     '''
     Amount of publications: Lorrens
     Unique authors: Lorrens
-    average amount of authors: ?
-    median amount of authors: ?
+    average amount of authors: Ivan
+    median amount of authors: Ivan
     number of papers per author: Lorrens/Ivan
-
-
     '''
