@@ -5,7 +5,7 @@ __pycache__/
 
 
 # ignore datasets because wtf
-dataset*
+datasets/
 
 # C extensions
 *.so
