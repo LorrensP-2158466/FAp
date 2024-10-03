@@ -2,9 +2,8 @@ from typing import Callable, Self
 import polars as pl
 import os
 
-
-
 type ExplorerResult = tuple[str, int]
+
 
 class DataExplorer():
     '''
@@ -12,7 +11,7 @@ class DataExplorer():
     '''
     # when adding a function 
     # add that name to this list:
-    choices = ["all", "default", "amt_publications", "average_amt_authors", "unique_authors","papers_per_author", "average_paper_per_author"]
+    choices = ["all", "default", "amt_publications", "average_amt_authors", "unique_authors", "papers_per_author", "average_paper_per_author"]
 
     df: pl.DataFrame
     def __init__(self, dataset_path: str) -> None:
@@ -21,9 +20,9 @@ class DataExplorer():
     def __create_dataframe(self, dataset_path: str) -> pl.DataFrame:
         return (
             pl.read_csv(dataset_path, 
-                        has_header=False,  # No header in the file
+                        has_header=False, 
                         new_columns=["names"],
-                        separator=";",
+                        separator="\n",
                         n_threads=os.cpu_count()
                         )
             .with_columns(
@@ -36,12 +35,15 @@ class DataExplorer():
     def perform_all(self) -> list[ExplorerResult]:
         return [ result for fun in self.choices if (result := self.hanlde_method(fun)) is not None ]
 
+
     def perform_default(self) -> list[ExplorerResult]:
         pass
 
+
     def amt_publications(self) -> int:
         return self.df.height
-    
+
+
     def unique_authors(self) -> int:
         return (
             self.df
@@ -50,16 +52,19 @@ class DataExplorer():
             .height
         )
 
+
     def average_amt_authors(self) -> int:
         df = self.df.with_columns(
                 pl.col("names").list.len().alias("len_names") 
             )
         return df["len_names"].mean()
 
-
+    
     def median_amt_authors(self) -> int:
-        pass
-
+        df = self.df.with_columns(
+            pl.col("names").list.len().alias("len_names")
+        )
+        return df["len_names"].median()
 
     def papers_per_author(self) -> int:
         result = (
@@ -100,7 +105,6 @@ class DataExplorer():
             return self.perform_all()
         if "default" in functions:
             return self.perform_default()
-                # Use read_csv to read the file
         return [result for fun in functions if (result := self.hanlde_method(fun)) is not None ]
         
 
