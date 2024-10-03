@@ -1,5 +1,6 @@
 import argparse
 import data_exploration
+from naive import Naive
 
 def initialize_args_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="BDA Project frequent itemsets and apriori")
@@ -17,7 +18,6 @@ def initialize_args_parser() -> argparse.ArgumentParser:
         nargs="*",
         choices=data_exploration.DataExplorer.choices,
         help="Choose one or more data explorations to perform on the dataset.",
-        default=["default"],
     )
 
     parser.add_argument(
@@ -31,7 +31,8 @@ def initialize_args_parser() -> argparse.ArgumentParser:
     group.add_argument(
         "--naive",
         help="Run naive impl",
-        metavar="",
+        action="store_const",
+        const=True,
         default=False,
     )
 
@@ -51,6 +52,11 @@ def main():
     if args.data_expl:
         explorer = data_exploration.DataExplorer(args.dataset)
         print(explorer.perform(args.data_expl))
+    if args.naive:
+        naive = Naive(args.dataset)
+        naive.run(4)
+
+    
 
 
 if __name__ == "__main__":
