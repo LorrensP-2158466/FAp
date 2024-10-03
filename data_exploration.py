@@ -11,7 +11,7 @@ class DataExplorer():
     '''
     # when adding a function 
     # add that name to this list:
-    choices = ["all", "default", "amt_publications", "average_amt_authors", "unique_authors", "papers_per_author", "average_paper_per_author"]
+    choices = ["all", "default", "amt_publications", "average_amt_authors", "unique_authors", "papers_per_author", "average_paper_per_author", "median_amt_authors"]
 
     df: pl.DataFrame
     def __init__(self, dataset_path: str) -> None:
@@ -100,7 +100,6 @@ class DataExplorer():
                 return None
 
     def perform(self, functions: list[str]) -> list[ExplorerResult]:
-        
         if "all" in functions:
             return self.perform_all()
         if "default" in functions:
