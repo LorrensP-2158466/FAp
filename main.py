@@ -1,6 +1,7 @@
 import argparse
 import data_exploration
 from naive import Naive
+import time
 
 def initialize_args_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="BDA Project frequent itemsets and apriori")
@@ -54,7 +55,15 @@ def main():
         print(explorer.perform(args.data_expl))
     if args.naive:
         naive = Naive(args.dataset)
-        naive.run(4)
+        for k in range(1, 20):
+            # run fully_df
+            start_time = time.perf_counter()
+            naive.run_fully_df(k)
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+            print(f"Calculating k={k} Elapsed in: {elapsed_time}\n")
+
+
 
     
 
