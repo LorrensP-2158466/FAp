@@ -10,6 +10,7 @@ class APriori():
     """
 
     df: pl.DataFrame
+    dataset: str
     # for tiny and medium <=5
     # for larger <= 25
     treshold: int
@@ -21,7 +22,8 @@ class APriori():
 
     def __init__(self, dataset_path: str, treshold = 5):
         self.treshold = treshold
-        self.df = (
+        self.dataset = dataset_path
+        self.df =(
             pl.read_csv(dataset_path,
                 has_header=False,
                 new_columns=["names"],
