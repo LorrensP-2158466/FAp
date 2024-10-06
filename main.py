@@ -1,4 +1,5 @@
 import argparse
+from apriori import APriori
 import data_exploration
 from naive import Naive
 import time
@@ -8,7 +9,7 @@ def initialize_args_parser() -> argparse.ArgumentParser:
     group = parser.add_mutually_exclusive_group(required=True)
 
     # try to make this shit a list like so:
-    # main.py --data-expl=[...] 
+    # main.py --data-expl=[...]
     # with ... a list of data explorations we like to perform
     #
     # can also be:
@@ -40,7 +41,8 @@ def initialize_args_parser() -> argparse.ArgumentParser:
     group.add_argument(
         "--apriori",
         help="run apriori impl",
-        metavar="",
+        action="store_const",
+        const=True,
         default=False
     )
 
@@ -53,19 +55,26 @@ def main():
     if args.data_expl:
         explorer = data_exploration.DataExplorer(args.dataset)
         print(explorer.perform(args.data_expl))
+
     if args.naive:
         naive = Naive(args.dataset)
         for k in range(1, 20):
             # run fully_df
             start_time = time.perf_counter()
-            naive.run_fully_df(k)
+            naive.run(k)
             end_time = time.perf_counter()
             elapsed_time = end_time - start_time
             print(f"Calculating k={k} Elapsed in: {elapsed_time}\n")
 
+    if args.apriori:
+        for k in range(1, 20):
+            apriori = APriori(args.dataset)
+            start_time = time.perf_counter()
+            apriori.run(k)
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+            print(f"Calculating k={k} Elapsed in: {elapsed_time}\n")
 
-
-    
 
 
 if __name__ == "__main__":
