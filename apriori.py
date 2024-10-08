@@ -15,13 +15,13 @@ class APriori():
     # for tiny and medium <=5
     # for larger <= 25
     treshold: int
-    singleton_map: dict[frozenset, int] = {}
-    pairs_map: dict[frozenset, int] = {}
+    singleton_map: defaultdict[frozenset, int] = defaultdict(int)
+    pairs_map: defaultdict[frozenset, int] = defaultdict(int)
 
-    prev_map: dict[frozenset, int] = {}
-    curr_map: dict[frozenset, int] = {}
+    prev_map: defaultdict[frozenset, int] = defaultdict(int)
+    curr_map: defaultdict[frozenset, int] = defaultdict(int)
 
-    method_treshold = 6
+    # method_treshold = 0
 
     def __init__(self, dataset_path: str, treshold = 25):
         self.treshold = treshold
@@ -60,10 +60,12 @@ class APriori():
             self.filter(pass_nr)
 
             self.prev_map = self.curr_map
-            self.curr_map = {}
+            self.curr_map = defaultdict(int)
 
         if len(self.prev_map) > 0:
             print(max(self.prev_map.items(), key=operator.itemgetter(1)))
+        else:
+            print(f"Maximal author set of size {k} doesnt exist")
 
 
 
@@ -72,7 +74,7 @@ class APriori():
     # frequent pairs : {1, 2}, {2, 3}, {3, 4}, and {4, 5} => l_k_prev
     # find frequent triples
     # basket =  {2, 3, 4, 5}
-    # possible triples: {2, 3, 4}, {2, 3, 5}, {2, 4, 5}, {3, 4, 5}, {}
+    # possible triples: {2, 3, 4}, {2, 3, 5}, {2, 4, 5}, {3, 4, 5}
     # C_K:
     #   {2, 3, 4}: {2, 3}, {2, 4}, {3, 4} => no
     #   {2, 3, 5}: {2, 3}, {2, 5}, {3, 5} => no
@@ -86,24 +88,21 @@ class APriori():
     # {4, 6}? {4}, {6} => yes, cuz 4 and 6 are in frequent
     def count(self, k: int):
         for (basket, ) in self.df.iter_rows():
-            possible_candidates = itertools.combinations(basket, k - 1)
+            # deze regel kan beter?
+            pruned_basket = [item for item in basket if frozenset([item]) in self.singleton_map]
+            
+            possible_candidates = itertools.combinations(pruned_basket, k-1)
 
             c_k = set()
-            if k < self.method_treshold:
-                for pc in possible_candidates:
-                    pc = frozenset(pc)
-                    if pc in self.prev_map:
-                        c_k = c_k.union(pc)
-
-            else:
-                for pc in self.prev_map:
-                    if pc.issubset(basket):
-                        c_k = c_k.union(pc)
+            for pc in possible_candidates:
+                pc = frozenset(pc)
+                if pc in self.prev_map:
+                    c_k = c_k.union(pc)
 
             unions = itertools.combinations(c_k, k)
             for candidate in unions:
                 key = frozenset(candidate)
-                self.curr_map[key] = self.curr_map.get(key, 0) + 1
+                self.curr_map[key] +=  1
 
 
     def filter(self, k: int):
@@ -116,7 +115,7 @@ class APriori():
         for (row,) in self.df.iter_rows():
             for el in row:
                 key = frozenset([el])
-                self.singleton_map[key] = self.singleton_map.get(key, 0) + 1
+                self.singleton_map[key] +=  1
 
     def filter_singletons(self):
         self.singleton_map = dict(
@@ -131,7 +130,7 @@ class APriori():
             #
             frequent_singletons = itertools.chain.from_iterable(self.prev_map.keys())
             for candidate in itertools.combinations(filter(lambda item: item in frequent_singletons, row), 2):
-                self.pairs_map[candidate] = self.pairs_map.get(candidate, 0) + 1
+                self.pairs_map[candidate] +=  1
 
 
     def filter_pairs(self):

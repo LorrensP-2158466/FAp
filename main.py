@@ -67,7 +67,7 @@ def main():
             print(f"Calculating k={k} Elapsed in: {elapsed_time}\n")
 
     if args.apriori:
-        for k in range(1, 20):
+        for k in range(1, 6):
             apriori = APriori(args.dataset)
             start_time = time.perf_counter()
             apriori.run(k)
