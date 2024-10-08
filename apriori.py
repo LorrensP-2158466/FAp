@@ -1,6 +1,7 @@
 from collections import defaultdict
 import itertools
 import polars as pl
+import mmap
 import os
 import operator
 
@@ -20,7 +21,9 @@ class APriori():
     prev_map: dict[frozenset, int] = {}
     curr_map: dict[frozenset, int] = {}
 
-    def __init__(self, dataset_path: str, treshold = 5):
+    method_treshold = 6
+
+    def __init__(self, dataset_path: str, treshold = 25):
         self.treshold = treshold
         self.dataset = dataset_path
         self.df =(
@@ -34,6 +37,7 @@ class APriori():
                 pl.col("names").str.split(",").alias("names")
             )
         )
+        # self.df = open(dataset_path, "r")
 
     """
     pass 1: frequent singletons
@@ -58,7 +62,8 @@ class APriori():
             self.prev_map = self.curr_map
             self.curr_map = {}
 
-        print(max(self.prev_map.items(), key=operator.itemgetter(1)))
+        if len(self.prev_map) > 0:
+            print(max(self.prev_map.items(), key=operator.itemgetter(1)))
 
 
 
@@ -81,13 +86,22 @@ class APriori():
     # {4, 6}? {4}, {6} => yes, cuz 4 and 6 are in frequent
     def count(self, k: int):
         for (basket, ) in self.df.iter_rows():
-            basket: list[str] = basket
-            possible_candidates = itertools.combinations(basket, k)
-            c_k = filter(
-                lambda pc: all(frozenset(item) in self.prev_map for item in itertools.combinations(pc, k-1)),
-                possible_candidates
-            )
-            for candidate in c_k:
+            possible_candidates = itertools.combinations(basket, k - 1)
+
+            c_k = set()
+            if k < self.method_treshold:
+                for pc in possible_candidates:
+                    pc = frozenset(pc)
+                    if pc in self.prev_map:
+                        c_k = c_k.union(pc)
+
+            else:
+                for pc in self.prev_map:
+                    if pc.issubset(basket):
+                        c_k = c_k.union(pc)
+
+            unions = itertools.combinations(c_k, k)
+            for candidate in unions:
                 key = frozenset(candidate)
                 self.curr_map[key] = self.curr_map.get(key, 0) + 1
 
