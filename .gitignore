@@ -5,6 +5,9 @@ __pycache__/
 
 .vscode
 
+# cProfile (python profiling)
+profile
+
 # nixos shenanigans
 shell.nix
 
