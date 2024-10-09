@@ -71,7 +71,6 @@ class APriori():
                 return
 
 
-
     # {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
     # frequent : {1, 2, 3, 4, 5}
     # frequent pairs : {1, 2}, {2, 3}, {3, 4}, and {4, 5} => l_k_prev
@@ -136,8 +135,8 @@ class APriori():
 
             # create the candidates and count them up
             if len(pruned_basket) >= 2:
-                for candidate in map(frozenset,itertools.combinations(pruned_basket, 2)):
-                    self.pairs_map[candidate] += 1
+                for candidate in itertools.combinations(pruned_basket, 2):
+                    self.pairs_map[frozenset(candidate)] += 1
         self.filter_pairs()
 
 
