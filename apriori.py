@@ -145,7 +145,7 @@ class APriori():
         self.pairs_map = self.filter_(self.pairs_map)
 
 
-    def filter_(self, map) -> set:
+    def filter_(self, map) -> dict:
         return {
             key: value for key, value in map.items() if value > self.treshold
         }
