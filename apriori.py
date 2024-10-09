@@ -1,10 +1,8 @@
 from collections import defaultdict
 import itertools
 import polars as pl
-import functools
 import os
 import operator
-# import numpy
 
 class APriori():
     """
