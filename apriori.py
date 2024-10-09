@@ -80,7 +80,7 @@ class APriori():
     # {2, 4}? {2}, {4} => no
     # {4, 6}? {4}, {6} => yes, cuz 4 and 6 are in frequent
     def count(self, k: int):
-        for (basket, ) in self.df.iter_rows():
+        for (basket, ) in self.df.filter(pl.col("names").list.len() >= k).iter_rows():
             basket: list[str] = basket
             possible_candidates = itertools.combinations(basket, k)
             c_k = filter(
