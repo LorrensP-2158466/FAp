@@ -103,7 +103,7 @@ class APriori():
             # create L_{k-1} from those authors
             # we are essentialy creating the sets of size k-1
             # that are frequent and consist of elements in this basket.
-            # in other words: these are the frequent pairs in prev_map
+            # in other words: these are the frequent sets in prev_map
             # that can be made from elements in this basket
             possible_candidates = {
                 pc for pc in itertools.combinations(pruned_basket, k-1)
