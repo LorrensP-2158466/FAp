@@ -4,6 +4,9 @@ import polars as pl
 import os
 import operator
 
+# using list/set comprehension seems to be faster than
+# using map()/filter()/reduce()
+
 class APriori():
     """
     Class to configure and run apriori algorithm on given dataset
@@ -133,8 +136,8 @@ class APriori():
 
             # create the candidates and count them up
             if len(pruned_basket) >= 2:
-                for candidate in itertools.combinations(pruned_basket, 2):
-                    self.pairs_map[frozenset(candidate)] += 1
+                for candidate in map(frozenset,itertools.combinations(pruned_basket, 2)):
+                    self.pairs_map[candidate] += 1
         self.filter_pairs()
 
 
