@@ -97,6 +97,8 @@ class APriori():
             # only take authors that where frequent in the previous iteration
             pruned_basket = prev_frequents.intersection(basket)
 
+            if len(pruned_basket) < k:
+                continue
             # create L_{k-1} from those authors
             possible_candidates = itertools.combinations(pruned_basket, k-1)
 
@@ -139,11 +141,11 @@ class APriori():
     def produce_frequent_pairs(self):
         prev_frequents = frozenset(itertools.chain.from_iterable(self.singleton_map.keys()))
         df =  self.df.filter(pl.col("names").list.len() >= 2)
-        for basket in df.iter_rows():
+        for (basket, ) in df.iter_rows():
             # only take authors that where frequent in the previous iteration
             pruned_basket = prev_frequents.intersection(basket)
             # create the candidates and count them up
-            if len(pruned_basket) > 2:
+            if len(pruned_basket) >= 2:
                 for candidate in map(frozenset,itertools.combinations(pruned_basket, 2)):
                     self.pairs_map[candidate] += 1
         self.filter_pairs()
