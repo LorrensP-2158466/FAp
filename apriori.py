@@ -20,7 +20,6 @@ class APriori():
     prev_map: defaultdict[frozenset, int] = defaultdict(int)
     curr_map: defaultdict[frozenset, int] = defaultdict(int)
 
-    # method_treshold = 0
 
     def __init__(self, dataset_path: str, treshold = 5):
         self.treshold = treshold
@@ -36,7 +35,6 @@ class APriori():
                 pl.col("names").str.split(",").alias("names")
             )
         )
-        # self.df = open(dataset_path, "r")
 
     """
     pass 1: frequent singletons
@@ -111,10 +109,7 @@ class APriori():
 
     # filter candidates based on treshold
     def filter(self):
-        self.curr_map = defaultdict(
-            int,
-            filter(lambda item: item[1] > self.treshold, self.curr_map.items())
-        )
+        self.curr_map = self.filter_(self.curr_map)
 
 
     def produce_frequent_singletons(self):
@@ -125,8 +120,9 @@ class APriori():
             .filter(pl.col("count") > self.treshold)
         )
         self.singleton_map = {
-            frozenset([row[0]]): row[1] for row in df.rows()
+            frozenset([row[0]]): row[1] for row in df.iter_rows()
         }
+
 
     def produce_frequent_pairs(self):
         prev_frequents = frozenset(itertools.chain.from_iterable(self.singleton_map))
@@ -137,12 +133,16 @@ class APriori():
 
             # create the candidates and count them up
             if len(pruned_basket) >= 2:
-                for candidate in map(frozenset,itertools.combinations(pruned_basket, 2)):
-                    self.pairs_map[candidate] += 1
+                for candidate in itertools.combinations(pruned_basket, 2):
+                    self.pairs_map[frozenset(candidate)] += 1
         self.filter_pairs()
 
 
     def filter_pairs(self):
-        self.pairs_map = {
-            key: value for key, value in self.pairs_map.items() if value > self.treshold
+        self.pairs_map = self.filter_(self.pairs_map)
+
+
+    def filter_(self, map) -> set:
+        return {
+            key: value for key, value in map.items() if value > self.treshold
         }
