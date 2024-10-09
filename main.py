@@ -70,6 +70,7 @@ def main():
         apriori = APriori(args.dataset, 25)
         generator = apriori.run(19)
         start_total_time = time.perf_counter()
+
         while True:
             try:
                 start_time = time.perf_counter()  # Start timing
