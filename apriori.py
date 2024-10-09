@@ -1,7 +1,7 @@
-from collections import defaultdict
+from collections import Counter, defaultdict
 import itertools
 import polars as pl
-import mmap
+import functools
 import os
 import operator
 
@@ -21,9 +21,8 @@ class APriori():
     prev_map: defaultdict[frozenset, int] = defaultdict(int)
     curr_map: defaultdict[frozenset, int] = defaultdict(int)
 
-    # method_treshold = 0
 
-    def __init__(self, dataset_path: str, treshold = 25):
+    def __init__(self, dataset_path: str, treshold = 5):
         self.treshold = treshold
         self.dataset = dataset_path
         self.df =(
@@ -52,20 +51,23 @@ class APriori():
         if i and j are frequent -> count (i, j)
     """
     def run(self, k: int):
-        self.count_singletons()
-        self.filter_singletons()
-        self.prev_map = self.singleton_map
-        for pass_nr in range(2,k+1):
+        self.produce_frequent_singletons()
+        yield (1, max(self.singleton_map.items(), key=operator.itemgetter(1)))
+
+        self.produce_frequent_pairs()
+        self.prev_map = self.pairs_map
+        yield (2, max(self.prev_map.items(), key=operator.itemgetter(1)))
+
+        for pass_nr in range(3,k+1):
             self.count(pass_nr)
-            self.filter(pass_nr)
+            self.filter()
 
             self.prev_map = self.curr_map
             self.curr_map = defaultdict(int)
-
-        if len(self.prev_map) > 0:
-            print(max(self.prev_map.items(), key=operator.itemgetter(1)))
-        else:
-            print(f"Maximal author set of size {k} doesnt exist")
+            if len(self.prev_map) > 0:
+                yield (pass_nr, max(self.prev_map.items(), key=operator.itemgetter(1)))
+            else:
+                return
 
 
 
@@ -87,54 +89,96 @@ class APriori():
     # {2, 4}? {2}, {4} => no
     # {4, 6}? {4}, {6} => yes, cuz 4 and 6 are in frequent
     def count(self, k: int):
-        prev_frequents = set(itertools.chain.from_iterable(self.prev_map))
-
+        prev_frequents = frozenset(itertools.chain.from_iterable(self.prev_map))
+        self.df = self.df.filter(pl.col("names").list.len() >= k)
         for (basket, ) in self.df.iter_rows():
+            # only take authors that where frequent in the previous iteration
             pruned_basket = prev_frequents.intersection(basket)
 
+            # create L_{k-1} from those authors
             possible_candidates = itertools.combinations(pruned_basket, k-1)
 
-            c_k = set()
-            for pc in possible_candidates:
-                pc = frozenset(pc)
-                if pc in self.prev_map:
-                    c_k = c_k.union(pc)
+            # elements that, when combined into k combinations
+            # will result in a candidate
+            c_k = functools.reduce(
+                frozenset.union, 
+                filter(
+                    lambda pc: pc in self.prev_map, 
+                    map(frozenset, possible_candidates)
+                ),
+                frozenset()
+                )
 
-            unions = itertools.combinations(c_k, k)
-            for candidate in unions:
-                key = frozenset(candidate)
-                self.curr_map[key] +=  1
+            # create the candidates and count them up
+            for candidate in map(frozenset,itertools.combinations(c_k, k)):
+                self.curr_map[candidate] +=  1
 
 
-    def filter(self, k: int):
-        self.curr_map = dict(
+    # filter candidates based on treshold
+    def filter(self):
+        self.curr_map = defaultdict(
+            int,
             filter(lambda item: item[1] > self.treshold, self.curr_map.items())
         )
 
 
-    def count_singletons(self):
-        for (row,) in self.df.iter_rows():
-            for el in row:
-                key = frozenset([el])
-                self.singleton_map[key] +=  1
-
-    def filter_singletons(self):
-        self.singleton_map = dict(
-            filter(lambda item: item[1] > self.treshold, self.singleton_map.items())
+    def produce_frequent_singletons(self):
+        df = (self.df
+            .explode("names")
+            .group_by("names")
+            .agg(pl.count())
+            .filter(pl.col("count") > self.treshold)
         )
+        self.singleton_map = defaultdict(int, map(lambda row: (frozenset((row[0],)), row[1]), df.iter_rows()))
 
-    def count_pairs(self):
-        # generate pairs from singleton_map
-        for (row, ) in self.df.iter_rows():
-            # voor elke item in basket die frequent is -> sla ze op
-            # genereer pairs van deze items en tel op
-            #
-            frequent_singletons = itertools.chain.from_iterable(self.prev_map.keys())
-            for candidate in itertools.combinations(filter(lambda item: item in frequent_singletons, row), 2):
-                self.pairs_map[candidate] +=  1
+    def produce_frequent_pairs_(self):
+        prev_frequents = frozenset(itertools.chain.from_iterable(self.singleton_map))
+        print(prev_frequents)
+        
+        # Use Counter for efficient counting
+        pair_counter = Counter()
+        
+        for pruned_basket in map(
+                lambda b: prev_frequents.intersection(b[0]), 
+                self.df.filter(pl.col("names").list.len() >= 2).iter_rows()):
+            print(pruned_basket)
+            
+            pair_counter.update(map(frozenset, itertools.combinations(pruned_basket, 2)))
+        
+
+        self.pairs_map.update(pair_counter)
+        self.filter_pairs()
+    
+    def produce_frequent_pairs(self):
+        prev_frequents = frozenset(itertools.chain.from_iterable(self.singleton_map))
+        df = self.df.filter(pl.col("names").list.len() >= 2)
+        for (basket, ) in df.iter_rows():
+            pruned_basket = prev_frequents.intersection(basket)
+
+            # create the candidates and count them up
+            for candidate in map(frozenset,itertools.combinations(pruned_basket, 2)):
+                self.pairs_map[candidate] += 1
+        
+        self.filter_pairs()
+
+    # not this
+    def produce_frequent_pairs_v2(self):
+        df = self.df.filter(pl.col("names").list.len() >= 2)
+        for pruned_basket in  map(
+                lambda row: filter(
+                    lambda x: x in self.singleton_map, row[0]),
+                     df.iter_rows()
+                ):
+
+            # create the candidates and count them up
+            for candidate in map(frozenset,itertools.combinations(pruned_basket, 2)):
+                self.pairs_map[candidate] += 1
+        
+        self.filter_pairs()
 
 
     def filter_pairs(self):
-        self.pairs_map = dict(
+        self.pairs_map = defaultdict(
+            int,
             filter(lambda item: item[1] > self.treshold, self.pairs_map.items())
         )
