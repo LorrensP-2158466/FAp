@@ -87,10 +87,11 @@ class APriori():
     # {2, 4}? {2}, {4} => no
     # {4, 6}? {4}, {6} => yes, cuz 4 and 6 are in frequent
     def count(self, k: int):
+        prev_frequents = set(itertools.chain.from_iterable(self.prev_map))
+
         for (basket, ) in self.df.iter_rows():
-            # deze regel kan beter?
-            pruned_basket = [item for item in basket if frozenset([item]) in self.singleton_map]
-            
+            pruned_basket = prev_frequents.intersection(basket)
+
             possible_candidates = itertools.combinations(pruned_basket, k-1)
 
             c_k = set()
