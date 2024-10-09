@@ -88,23 +88,33 @@ class APriori():
     # possible pairs: {2, 4}, {2, 6}, {2, 9}, {4, 6}, {4, 9}, {6, 9}
     # {2, 4}? {2}, {4} => no
     # {4, 6}? {4}, {6} => yes, cuz 4 and 6 are in frequent
+
     def count(self, k: int):
         prev_frequents = frozenset(itertools.chain.from_iterable(self.prev_map))
         self.df = self.df.filter(pl.col("names").list.len() >= k)
+        
         for (basket, ) in self.df.iter_rows():
             # only take authors that where frequent in the previous iteration
             pruned_basket = prev_frequents.intersection(basket)
 
             if len(pruned_basket) < k:
                 continue
+            
             # create L_{k-1} from those authors
+            # we are essentialy creating the sets of size k-1
+            # that are frequent and consist of elements in this basket.
+            # in other words: these are the frequent pairs in prev_map
+            # that can be made from elements in this basket
             possible_candidates = {
                 pc for pc in itertools.combinations(pruned_basket, k-1)
                 if frozenset(pc) in self.prev_map
             }
+
+            # flatten set
             c_k = frozenset().union(*possible_candidates)
 
-            # create the candidates and count them up
+            # the frequent sets of size k can only consist of the 
+            # elements in c_k => create sets and count them
             for candidate in itertools.combinations(c_k, k):
                 self.curr_map[frozenset(candidate)] +=  1
 
