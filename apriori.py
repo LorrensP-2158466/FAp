@@ -1,10 +1,10 @@
 from collections import defaultdict
 import itertools
+import torch 
 import polars as pl
 import os
 import operator
 from util import *
-import torch
 
 # using list/set comprehension seems to be faster than
 # using map()/filter()/reduce()
@@ -93,12 +93,13 @@ class APriori():
 
     def count(self, k: int):
         self.df = self.df.filter(pl.col("names").list.len() >= k)
-        
+        prev_items = list(itertools.chain.from_iterable(self.prev_map))
+        indices = [i for i in range(len(prev_items))]
+
         for (basket, ) in self.df.iter_rows():
-            print("s")
+            bindices = [i for i in range(len(basket))]
             # only take authors that where frequent in the previous iteration
-            # pruned_basket = torch_intersect(torch.tensor(basket), torch.tensor(self.prev_map.keys()))
-            pruned_basket = []
+            pruned_basket = torch_intersect(torch.tensor(bindices), torch.tensor(indices))
 
             if len(pruned_basket) < k:
                 continue
