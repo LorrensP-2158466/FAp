@@ -54,11 +54,15 @@ class APriori():
     def run(self, k: int):
         self.produce_frequent_singletons()
         yield (1, max(self.singleton_map.items(), key=operator.itemgetter(1)))
+        if k == 1:
+            return
 
         self.produce_frequent_pairs()
         self.prev_map = self.pairs_map
         yield (2, max(self.prev_map.items(), key=operator.itemgetter(1)))
 
+        if k == 2:
+            return
         for pass_nr in range(3,k+1):
             self.count(pass_nr)
             self.filter()
