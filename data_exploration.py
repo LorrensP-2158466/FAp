@@ -77,9 +77,9 @@ class DataExplorer():
         print(result)
         return 0
 
-    def average_paper_per_author(self) -> int:
+    def average_paper_per_author(self) -> float:
         unique_authors = self.unique_authors()
-        return int(self.df.height / unique_authors if unique_authors > 0 else 0)
+        return self.df.height / unique_authors if unique_authors > 0 else 0
 
 
     def hanlde_method(self, fun: str) -> ExplorerResult | None:

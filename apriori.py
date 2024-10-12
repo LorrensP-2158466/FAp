@@ -32,7 +32,7 @@ class APriori():
                 has_header=False,
                 new_columns=["names"],
                 separator="\n",
-                n_threads=os.cpu_count()
+                n_threads=os.cpu_count() # we tested with 1 and we got the same results
             )
             .with_columns(
                 pl.col("names").str.split(",").alias("names")
