@@ -18,7 +18,7 @@ pyrightconfig.json
 datasets/
 
 # ignore virtual python env
-.pyenv/
+pyenv/
 
 # C extensions
 *.so
