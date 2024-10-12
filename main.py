@@ -67,8 +67,9 @@ def main():
             print(f"Calculating k={k} Elapsed in: {elapsed_time}\n")
 
     if args.apriori:
-        apriori = APriori(args.dataset, 25)
-        generator = apriori.run(19)
+        k = 19
+        apriori = APriori(args.dataset, 5)
+        generator = apriori.run(k)
         start_total_time = time.perf_counter()
 
         while True:
@@ -86,17 +87,7 @@ def main():
                 # Break the loop when the generator is exhausted
                 break
         end_total_time = time.perf_counter()
-        print(f"Calculating till 18 elapsed in: {end_total_time - start_total_time}")
-    elif args.apriori:
-        for k in range(1, 19):
-            apriori = APriori(args.dataset, 25)
-            start_time = time.perf_counter()
-            apriori.run(k)
-            end_time = time.perf_counter()
-            elapsed_time = end_time - start_time
-            print(f"Calculating k={k} Elapsed in: {elapsed_time}\n")
-
-
+        print(f"Calculating till {k} elapsed in: {end_total_time - start_total_time}")
 
 if __name__ == "__main__":
     main()
