@@ -2,7 +2,6 @@ from collections import defaultdict
 import itertools
 import os
 import polars as pl
-from pprint import pprint
 import operator
 
 class Naive():
@@ -35,4 +34,3 @@ class Naive():
             print(max(self.counter.items(), key=operator.itemgetter(1)))
         else:
             print(f"Maximal author set of size {k} doesnt exist")
-        #print(max(self.counter.items(), key=lambda x: x[1]))

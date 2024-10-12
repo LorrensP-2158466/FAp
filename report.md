@@ -74,9 +74,34 @@ We hebben voor de data exploratie 5 technieken gebruikt, de 2 die gegeven waren 
 | Unique Authors                      | 290                  | 14,885               | 17,707               | 1,258,951            | 3,658,503            |
 | Average Paper per Author            | 2.168965517241379    | 1.5303325495465234   | 1.1911673349522787   | 1.59237571597306     | 1.952301528794701    |
 
-## Naive implementation
 
-### Dataset Tiny
+## Implementation details
+
+### Data exploration
+We chose to use the `polars` library to load the file and store its rows. It is a faster alternative to the `pandas` framework.
+We also used it in the implementation of the other algorithms to read and store the baskets from the file.
+...
+
+### Naive
+The code starts in the `main.py` file where a loop iteratively calls `Naive.run(k)`. The `Naive` object will then
+search for the most frequent itemset(s) of size k using a counter dictionary. It does 
+this by going through each basket/row of the table and:
+- Generating every combination of the current basket
+- For each combination: 
+    - if it is already in the counter dictionary, increase the count by one
+    - if it is a new entry, add it to the dict and set the counter to 1
+
+After all baskets have been looped through it looks for the highest count, and returns one of the elements
+with this maximum count.
+
+## A Priori
+...
+
+## Implementation metrics
+
+### Naive implementation
+
+#### Dataset Tiny
 
 | k  | Frequent Itemset                                                                                      | Frequency | Elapsed Time (seconds)       | Cumulative Time (seconds) |
 |----|-------------------------------------------------------------------------------------------------------|-----------|-----------------------------|----------------------------|
@@ -90,7 +115,7 @@ We hebben voor de data exploratie 5 technieken gebruikt, de 2 die gegeven waren 
 | 8  | {'Stijn Vansummeren', 'Yuqing Wu', 'Marc Gyssens', 'Dimitri Surinx', 'Dirk Van Gucht', 'Jan Van den Bussche', 'George H. L. Fletcher', 'Dirk Leinders'} | 3 | 7.358300354098901e-05 | 0.00917474900052184 |
 | 9  | {'Marc Gyssens', 'Jan Paredaens', 'Marc Gemis', 'Dirk Van Gucht', 'Jan Van den Bussche', 'Inge Thyssens', 'Marc Andries', 'Vijay M. Sarathy', 'Lawrence V. Saxton'} | 1 | 0.00027599999884841964 | 0.009450748999370259 |
 
-### Dataset Medium 1
+#### Dataset Medium 1
 
 | k   | Frequent Itemset                                                                                      | Frequency | Elapsed Time (seconds)       | Cumulative Time (seconds) |
 |-----|-------------------------------------------------------------------------------------------------------|-----------|------------------------------|---------------------------|
@@ -105,7 +130,7 @@ We hebben voor de data exploratie 5 technieken gebruikt, de 2 die gegeven waren 
 | 9   | {'Marc Denecker', 'Anthony Labarre', 'Jan Ramon', 'Sicco Verwer', 'Broes De Cat', 'Stef De Pooter', 'Maurice Bruynooghe', 'Hendrik Blockeel', 'Bart Bogaerts 0001'} | 3 | 0.002401416000793688 | 0.45817933000713774 |
 | 10  | {'Victor Marsault', 'Paolo Guagliardo', 'Filip Murlak', 'Nadime Francis', 'Amélie Gheerbrant', 'Wim Martens', 'Liat Peterfreund', 'Leonid Libkin', 'Domagoj Vrgoc', 'Alexandra Rogova'} | 3 | 0.0007103750031092204 | 0.45888970501024695 |
 
-### Dataset Medium 2
+#### Dataset Medium 2
 
 | k   | Frequent Itemset                                                                                       | Frequency | Elapsed Time (seconds)      | Cumulative Time (seconds) |
 |-----|--------------------------------------------------------------------------------------------------------|-----------|-----------------------------|---------------------------|
@@ -114,14 +139,14 @@ We hebben voor de data exploratie 5 technieken gebruikt, de 2 die gegeven waren 
 | 3   | {'Maurizio Lenzerini', 'Giuseppe De Giacomo', 'Diego Calvanese'}                                   | 104       | 1.487937083998986           | 1.6462368329998647        |
 | 4   | {'Maurizio Lenzerini', 'Riccardo Rosati 0001', 'Giuseppe De Giacomo', 'Diego Calvanese'}          | 37        | 28.862211291998392          | 30.508448124998256        |
 
-### Dataset Large & ALL
+#### Dataset Large & ALL
 
 MOETEN WE EENS DE TIJD VOOR NEMEN OM TE RUNNEN
 
 
-## Apriori
+### Apriori
 
-### Dataset Tiny
+#### Dataset Tiny
 
 Treshold used = 5
 
@@ -135,7 +160,7 @@ Treshold used = 5
 | 6  | {'Dirk Van Gucht', 'Yuqing Wu', 'Jan Van den Bussche', 'George H. L. Fletcher', 'Stijn Vansummeren', 'Marc Gyssens'} | 9         | 0.00022116700711194426       | 0.005323833004229866       |
 | 7  | {'Dirk Van Gucht', 'Yuqing Wu', 'Dirk Leinders', 'Jan Van den Bussche', 'George H. L. Fletcher', 'Stijn Vansummeren', 'Marc Gyssens'} | 6         | 0.00011137499677715823       | 0.005435208000007024       |
 
-### Dataset Medium 1
+#### Dataset Medium 1
 
 treshold used = 5
 
@@ -150,7 +175,7 @@ treshold used = 5
 | 7  | {'Stefan Zugal', 'Dirk Fahland', 'Jakob Pinggera', 'Hajo A. Reijers', 'Barbara Weber', 'Jan Mendling', 'Matthias Weidlich 0001'} | 9         | 0.0018953749968204647        | 0.12448870699154213        |
 | 8  | {'Daniela Loreti', 'Sergio Tessaris', 'Fabrizio Maria Maggi', 'Paola Mello', 'Federico Chesani', 'Chiara Di Francescomarino', 'Marco Montali', 'Chiara Ghidini'} | 6         | 0.0009790000040084124        | 0.12546770699555054        |
 
-### Dataset Medium 2
+#### Dataset Medium 2
 
 treshold used = 5
 
@@ -172,7 +197,7 @@ treshold used = 5
 | 14 | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'Rob Byrom', 'James Magowan', 'Roney Cordenonsi', 'Linda Cornwall', 'Paul Taylor', 'Andrew W. Cooke', 'Antony J. Wilson', 'Norbert Podhorszki'} | 6         | 0.0016556249975110404        | 0.6578895029878373         |
 | 15 | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'Rob Byrom', 'James Magowan', 'Roney Cordenonsi', 'Linda Cornwall', 'Paul Taylor', 'Andrew W. Cooke', 'Antony J. Wilson', 'Norbert Podhorszki'} | 6         | 0.0007391670005745254        | 0.6586286699884119         |
 
-### Dataset Large
+#### Dataset Large
 
 treshold used = 25
 
@@ -185,7 +210,7 @@ treshold used = 25
 | 5  | {'Margaret J. Wright', 'Katie McMahon', 'Arthur W. Toga', 'Greig I. de Zubicaray', 'Paul M. Thompson'}            | 44        | 0.2104743750023772           | 3.9700450000018464         |
 | 6  | {'Alberto Gil-Solla', 'Ana Fernández Vilas', 'José Juan Pazos-Arias', 'Manuel Ramos Cabrer', 'Rebeca P. Díaz Redondo', 'Jorge García Duque'} | 31        | 0.10827104099735152                         | 4.078316041999198           |
 
-### Dataset ALL
+#### Dataset ALL
 
 treshold used = 25
 
