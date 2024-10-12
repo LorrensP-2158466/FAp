@@ -184,7 +184,7 @@ treshold used = 25
 | 3  | {'Tetsuya Ogata', 'Kazunori Komatani', 'Hiroshi G. Okuno'}                                                         | 122       | 0.8413427920022514           |
 | 4  | {'Arnaud Virazel', 'Patrick Girard 0001', 'Luigi Dilillo', 'Alberto Bosio'}                                        | 53        | 0.39790841699868906          |
 | 5  | {'Margaret J. Wright', 'Katie McMahon', 'Arthur W. Toga', 'Greig I. de Zubicaray', 'Paul M. Thompson'}            | 44        | 0.2104743750023772           |
-| 6  | {'Alberto Gil-Solla', 'Ana Fernández Vilas', 'José Juan Pazos-Arias', 'Manuel Ramos Cabrer', 'Rebeca P. Díaz Redondo', 'Jorge García Duque'} | 31        | N/A                          |
+| 6  | {'Alberto Gil-Solla', 'Ana Fernández Vilas', 'José Juan Pazos-Arias', 'Manuel Ramos Cabrer', 'Rebeca P. Díaz Redondo', 'Jorge García Duque'} | 31        |  0.10827104099735152                         |
 
 
 ### Dataset ALL
