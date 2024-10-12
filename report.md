@@ -94,7 +94,7 @@ this by going through each basket/row of the table and:
 After all baskets have been looped through it looks for the highest count, and returns one of the elements
 with this maximum count.
 
-### A Priori
+## A Priori
 ...
 
 ## Implementation metrics
