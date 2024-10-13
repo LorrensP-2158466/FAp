@@ -94,124 +94,160 @@ this by going through each basket/row of the table and:
 After all baskets have been looped through it looks for the highest count, and returns one of the elements
 with this maximum count.
 
-## A Priori
-...
 
-## Implementation metrics
+### Apriori
+
+The code starts in the `main.py` file where while loop calls the generator of the Apriori implementation
+and collects it's results. The reason we used a generator is because it makes it easier to collect to large `k`'s
+because the next call to the generator can use the results of the previous results.
+
+The `run` method is the main entry point and is structured like this:
+
+- Produce frequent singletons and yield one of the maximal ones.
+- Produce frequent pairs and yield one of the maximal ones.
+- Produce the rest of the fruquent itemsets and yield one of the maximal ones.
+
+
+
+## Implementation Results
 
 ### Naive implementation
 
 #### Dataset Tiny
 
-| k  | Frequent Itemset                                                                                      | Frequency | Elapsed Time (seconds)       | Cumulative Time (seconds) |
-|----|-------------------------------------------------------------------------------------------------------|-----------|-----------------------------|----------------------------|
-| 1  | {'Jan Van den Bussche'}                                                                                | 250       | 0.004987250002159271         | 0.004987250002159271       |
-| 2  | {'Dirk Van Gucht', 'Marc Gyssens'}                                                                     | 67        | 0.0012827909959014505        | 0.006270040998060721       |
-| 3  | {'Yuqing Wu', 'Dirk Van Gucht', 'Marc Gyssens'}                                                        | 25        | 0.0012156250013504177        | 0.007485666999411139       |
-| 4  | {'Yuqing Wu', 'George H. L. Fletcher', 'Dirk Van Gucht', 'Marc Gyssens'}                               | 14        | 0.0007752919991617091        | 0.008260958998572847       |
-| 5  | {'Stijn Vansummeren', 'Marc Gyssens', 'Dirk Van Gucht', 'Jan Van den Bussche', 'George H. L. Fletcher'} | 11        | 0.00046941699838498607       | 0.008730375996957833       |
-| 6  | {'Stijn Vansummeren', 'Yuqing Wu', 'Marc Gyssens', 'Dirk Van Gucht', 'Jan Van den Bussche', 'George H. L. Fletcher'} | 9 | 0.0002464580029482022 | 0.008976833999906035 |
-| 7  | {'Stijn Vansummeren', 'Yuqing Wu', 'Marc Gyssens', 'Dirk Van Gucht', 'Jan Van den Bussche', 'George H. L. Fletcher', 'Dirk Leinders'} | 6 | 0.00012433299707481638 | 0.009101166996980851 |
-| 8  | {'Stijn Vansummeren', 'Yuqing Wu', 'Marc Gyssens', 'Dimitri Surinx', 'Dirk Van Gucht', 'Jan Van den Bussche', 'George H. L. Fletcher', 'Dirk Leinders'} | 3 | 7.358300354098901e-05 | 0.00917474900052184 |
-| 9  | {'Marc Gyssens', 'Jan Paredaens', 'Marc Gemis', 'Dirk Van Gucht', 'Jan Van den Bussche', 'Inge Thyssens', 'Marc Andries', 'Vijay M. Sarathy', 'Lawrence V. Saxton'} | 1 | 0.00027599999884841964 | 0.009450748999370259 |
+| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+|---|------------|---------|------------------|---------------------|
+| 1 | Jan Van den Bussche | 250 | 0.001001 | 0.001001 |
+| 2 | Dirk Van Gucht, Marc Gyssens | 67 | 0.001257 | 0.002258 |
+| 3 | Yuqing Wu, Dirk Van Gucht, Marc Gyssens | 25 | 0.001143 | 0.003401 |
+| 4 | George H. L. Fletcher, Yuqing Wu, Dirk Van Gucht, Marc Gyssens | 14 | 0.000731 | 0.004131 |
+| 5 | Stijn Vansummeren, Dirk Van Gucht, George H. L. Fletcher, Jan Van den Bussche, Marc Gyssens | 11 | 0.000429 | 0.004561 |
+| 6 | Stijn Vansummeren, Dirk Van Gucht, George H. L. Fletcher, Jan Van den Bussche, Yuqing Wu, Marc Gyssens | 9 | 0.000222 | 0.004783 |
+| 7 | Stijn Vansummeren, Dirk Van Gucht, George H. L. Fletcher, Dirk Leinders, Jan Van den Bussche, Yuqing Wu, Marc Gyssens | 6 | 0.000113 | 0.004896 |
+| 8 | Stijn Vansummeren, Dirk Van Gucht, George H. L. Fletcher, Dirk Leinders, Dimitri Surinx, Jan Van den Bussche, Yuqing Wu, Marc Gyssens | 3 | 0.000077 | 0.004973 |
+| 9 | Inge Thyssens, Dirk Van Gucht, Marc Gemis, Vijay M. Sarathy, Lawrence V. Saxton, Jan Paredaens, Jan Van den Bussche, Marc Andries, Marc Gyssens | 1 | 0.000066 | 0.005039 |
 
 #### Dataset Medium 1
 
-| k   | Frequent Itemset                                                                                      | Frequency | Elapsed Time (seconds)       | Cumulative Time (seconds) |
-|-----|-------------------------------------------------------------------------------------------------------|-----------|------------------------------|---------------------------|
-| 1   | {'Moshe Y. Vardi'}                                                                                   | 762       | 0.032561250001890585         | 0.032561250001890585      |
-| 2   | {'Dirk Habich', 'Wolfgang Lehner'}                                                                    | 182       | 0.06798625000374159          | 0.10054750000563217       |
-| 3   | {'Diego Calvanese', 'Maurizio Lenzerini', 'Giuseppe De Giacomo'}                                   | 104       | 0.08565833299508085          | 0.18620583200071302       |
-| 4   | {'Diego Calvanese', 'Maurizio Lenzerini', 'Riccardo Rosati 0001', 'Giuseppe De Giacomo'}          | 37        | 0.0809505419965717           | 0.2671563739972847        |
-| 5   | {'Diego Calvanese', 'Maurizio Lenzerini', 'Riccardo Rosati 0001', 'Domenico Lembo', 'Giuseppe De Giacomo'} | 25 | 0.08720758400158957       | 0.35436395799887427       |
-| 6   | {'Dirk Fahland', 'Hajo A. Reijers', 'Matthias Weidlich 0001', 'Jan Mendling', 'Stefan Zugal', 'Barbara Weber'} | 11 | 0.06906675000209361 | 0.42343070700096787 |
-| 7   | {'Hajo A. Reijers', 'Dirk Fahland', 'Matthias Weidlich 0001', 'Stefan Zugal', 'Jan Mendling', 'Barbara Weber', 'Jakob Pinggera'} | 9 | 0.02401220799947623 | 0.4474429140004441  |
-| 8   | {'Chiara Di Francescomarino', 'Federico Chesani', 'Daniela Loreti', 'Fabrizio Maria Maggi', 'Chiara Ghidini', 'Sergio Tessaris', 'Marco Montali', 'Paola Mello'} | 6 | 0.008335000005899929 | 0.45577791400634405 |
-| 9   | {'Marc Denecker', 'Anthony Labarre', 'Jan Ramon', 'Sicco Verwer', 'Broes De Cat', 'Stef De Pooter', 'Maurice Bruynooghe', 'Hendrik Blockeel', 'Bart Bogaerts 0001'} | 3 | 0.002401416000793688 | 0.45817933000713774 |
-| 10  | {'Victor Marsault', 'Paolo Guagliardo', 'Filip Murlak', 'Nadime Francis', 'Amélie Gheerbrant', 'Wim Martens', 'Liat Peterfreund', 'Leonid Libkin', 'Domagoj Vrgoc', 'Alexandra Rogova'} | 3 | 0.0007103750031092204 | 0.45888970501024695 |
+| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+|---|------------|---------|------------------|---------------------|
+| 1 | Moshe Y. Vardi | 762 | 0.033490 | 0.033490 |
+| 2 | Wolfgang Lehner, Dirk Habich | 182 | 0.066958 | 0.100448 |
+| 3 | Diego Calvanese, Maurizio Lenzerini, Giuseppe De Giacomo | 104 | 0.084235 | 0.184684 |
+| 4 | Diego Calvanese, Maurizio Lenzerini, Giuseppe De Giacomo, Riccardo Rosati 0001 | 37 | 0.078047 | 0.262731 |
+| 5 | Giuseppe De Giacomo, Riccardo Rosati 0001, Diego Calvanese, Domenico Lembo, Maurizio Lenzerini | 25 | 0.086718 | 0.349449 |
+| 6 | Jan Mendling, Stefan Zugal, Hajo A. Reijers, Barbara Weber, Matthias Weidlich 0001, Dirk Fahland | 11 | 0.048373 | 0.397822 |
+| 7 | Jakob Pinggera, Stefan Zugal, Jan Mendling, Hajo A. Reijers, Barbara Weber, Matthias Weidlich 0001, Dirk Fahland | 9 | 0.026607 | 0.424429 |
+| 8 | Chiara Di Francescomarino, Fabrizio Maria Maggi, Paola Mello, Federico Chesani, Daniela Loreti, Chiara Ghidini, Marco Montali, Sergio Tessaris | 6 | 0.007767 | 0.432196 |
+| 9 | Marc Denecker, Stef De Pooter, Maurice Bruynooghe, Broes De Cat, Bart Bogaerts 0001, Anthony Labarre, Sicco Verwer, Jan Ramon, Hendrik Blockeel | 3 | 0.002016 | 0.434213 |
+| 10 | Domagoj Vrgoc, Leonid Libkin, Paolo Guagliardo, Nadime Francis, Wim Martens, Alexandra Rogova, Filip Murlak, Liat Peterfreund, Amélie Gheerbrant, Victor Marsault | 3 | 0.000476 | 0.434689 |
 
 #### Dataset Medium 2
 
-| k   | Frequent Itemset                                                                                       | Frequency | Elapsed Time (seconds)      | Cumulative Time (seconds) |
-|-----|--------------------------------------------------------------------------------------------------------|-----------|-----------------------------|---------------------------|
-| 1   | {'Noga Alon'}                                                                                        | 634       | 0.03433170900098048         | 0.03433170900098048       |
-| 2   | {'Dirk Habich', 'Wolfgang Lehner'}                                                                   | 184       | 0.12396804099989822         | 0.1582997490008787        |
-| 3   | {'Maurizio Lenzerini', 'Giuseppe De Giacomo', 'Diego Calvanese'}                                   | 104       | 1.487937083998986           | 1.6462368329998647        |
-| 4   | {'Maurizio Lenzerini', 'Riccardo Rosati 0001', 'Giuseppe De Giacomo', 'Diego Calvanese'}          | 37        | 28.862211291998392          | 30.508448124998256        |
+| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+|---|------------|---------|------------------|---------------------|
+| 1 | Noga Alon | 634 | 0.055396 | 0.055396 |
+| 2 | Dirk Habich, Wolfgang Lehner | 184 | 0.188788 | 0.244184 |
+| 3 | Maurizio Lenzerini, Diego Calvanese, Giuseppe De Giacomo | 104 | 2.042030 | 2.286214 |
+| 4 | Riccardo Rosati 0001, Maurizio Lenzerini, Diego Calvanese, Giuseppe De Giacomo | 37 | 35.333536 | 37.619750 |
 
+Met K > 4 duurde het langer dan 20 minuten en gebruikte meer dan 50GB aan geheugen op de gebruikte machine.
 #### Dataset Large & ALL
 
 MOETEN WE EENS DE TIJD VOOR NEMEN OM TE RUNNEN
 
 
-### Apriori
+### Apriori Implementation
 
 #### Dataset Tiny
 
 Treshold used = 5
 
-| k  | Frequent Itemset                                                                                                        | Frequency | Elapsed Time (seconds)      | Cumulative Time (seconds) |
-|----|-------------------------------------------------------------------------------------------------------------------------|-----------|------------------------------|----------------------------|
-| 1  | {'Jan Van den Bussche'}                                                                                                   | 250       | 0.0011538329999893904        | 0.0011538329999893904      |
-| 2  | {'Marc Gyssens', 'Dirk Van Gucht'}                                                                                      | 67        | 0.0014696250000270084        | 0.0026234570000163988      |
-| 3  | {'Marc Gyssens', 'Yuqing Wu', 'Dirk Van Gucht'}                                                                        | 25        | 0.0012704999971901998        | 0.0038939569972065986      |
-| 4  | {'George H. L. Fletcher', 'Marc Gyssens', 'Yuqing Wu', 'Dirk Van Gucht'}                                              | 14        | 0.0007554170006187633        | 0.004649373997825362       |
-| 5  | {'Dirk Van Gucht', 'Jan Van den Bussche', 'George H. L. Fletcher', 'Stijn Vansummeren', 'Marc Gyssens'}                | 11        | 0.0004532919992925599        | 0.005102665997117922       |
-| 6  | {'Dirk Van Gucht', 'Yuqing Wu', 'Jan Van den Bussche', 'George H. L. Fletcher', 'Stijn Vansummeren', 'Marc Gyssens'} | 9         | 0.00022116700711194426       | 0.005323833004229866       |
-| 7  | {'Dirk Van Gucht', 'Yuqing Wu', 'Dirk Leinders', 'Jan Van den Bussche', 'George H. L. Fletcher', 'Stijn Vansummeren', 'Marc Gyssens'} | 6         | 0.00011137499677715823       | 0.005435208000007024       |
+| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+|---|------------|---------|------------------|---------------------|
+| 1 | Jan Van den Bussche | 250 | 0.001258 | 0.001258 |
+| 2 | Dirk Van Gucht, Marc Gyssens | 67 | 0.001109 | 0.002367 |
+| 3 | Dirk Van Gucht, Marc Gyssens, Yuqing Wu | 25 | 0.001312 | 0.003679 |
+| 4 | Dirk Van Gucht, George H. L. Fletcher, Marc Gyssens, Yuqing Wu | 14 | 0.000752 | 0.004431 |
+| 5 | Dirk Van Gucht, George H. L. Fletcher, Marc Gyssens, Stijn Vansummeren, Jan Van den Bussche | 11 | 0.000407 | 0.004838 |
+| 6 | Dirk Van Gucht, George H. L. Fletcher, Marc Gyssens, Stijn Vansummeren, Yuqing Wu, Jan Van den Bussche | 9 | 0.000231 | 0.005069 |
+| 7 | Dirk Van Gucht, George H. L. Fletcher, Marc Gyssens, Stijn Vansummeren, Dirk Leinders, Yuqing Wu, Jan Van den Bussche | 6 | 0.000106 | 0.005175 |
+
 
 #### Dataset Medium 1
 
 treshold used = 5
 
-| k  | Frequent Itemset                                                                                                       | Frequency | Elapsed Time (seconds)      | Cumulative Time (seconds) |
-|----|------------------------------------------------------------------------------------------------------------------------|-----------|------------------------------|----------------------------|
-| 1  | {'Moshe Y. Vardi'}                                                                                                     | 762       | 0.00471391600149218          | 0.00471391600149218        |
-| 2  | {'Dirk Habich', 'Wolfgang Lehner'}                                                                                     | 182       | 0.037213166993751656         | 0.04192708299524384        |
-| 3  | {'Giuseppe De Giacomo', 'Maurizio Lenzerini', 'Diego Calvanese'}                                                    | 104       | 0.045612540998263285         | 0.08753962399350713        |
-| 4  | {'Riccardo Rosati 0001', 'Giuseppe De Giacomo', 'Maurizio Lenzerini', 'Diego Calvanese'}                            | 37        | 0.02187320800294401          | 0.10941283199645114        |
-| 5  | {'Maurizio Lenzerini', 'Giuseppe De Giacomo', 'Riccardo Rosati 0001', 'Domenico Lembo', 'Diego Calvanese'}         | 25        | 0.008955457997217309         | 0.11836828999366845        |
-| 6  | {'Stefan Zugal', 'Dirk Fahland', 'Hajo A. Reijers', 'Barbara Weber', 'Jan Mendling', 'Matthias Weidlich 0001'}    | 11        | 0.004225042001053225         | 0.12259333199472167        |
-| 7  | {'Stefan Zugal', 'Dirk Fahland', 'Jakob Pinggera', 'Hajo A. Reijers', 'Barbara Weber', 'Jan Mendling', 'Matthias Weidlich 0001'} | 9         | 0.0018953749968204647        | 0.12448870699154213        |
-| 8  | {'Daniela Loreti', 'Sergio Tessaris', 'Fabrizio Maria Maggi', 'Paola Mello', 'Federico Chesani', 'Chiara Di Francescomarino', 'Marco Montali', 'Chiara Ghidini'} | 6         | 0.0009790000040084124        | 0.12546770699555054        |
+| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+|---|------------|---------|------------------|---------------------|
+| 1 | Moshe Y. Vardi | 762 | 0.004446 | 0.004446 |
+| 2 | Dirk Habich, Wolfgang Lehner | 182 | 0.037631 | 0.042076 |
+| 3 | Giuseppe De Giacomo, Maurizio Lenzerini, Diego Calvanese | 104 | 0.045699 | 0.087776 |
+| 4 | Riccardo Rosati 0001, Giuseppe De Giacomo, Maurizio Lenzerini, Diego Calvanese | 37 | 0.022120 | 0.109896 |
+| 5 | Giuseppe De Giacomo, Riccardo Rosati 0001, Domenico Lembo, Maurizio Lenzerini, Diego Calvanese | 25 | 0.009197 | 0.119093 |
+| 6 | Jan Mendling, Hajo A. Reijers, Stefan Zugal, Dirk Fahland, Matthias Weidlich 0001, Barbara Weber | 11 | 0.003712 | 0.122805 |
+| 7 | Jan Mendling, Hajo A. Reijers, Stefan Zugal, Jakob Pinggera, Dirk Fahland, Matthias Weidlich 0001, Barbara Weber | 9 | 0.001704 | 0.124509 |
+| 8 | Daniela Loreti, Federico Chesani, Sergio Tessaris, Chiara Ghidini, Chiara Di Francescomarino, Fabrizio Maria Maggi, Paola Mello, Marco Montali | 6 | 0.000931 | 0.125440 |
+
+                                                                                                   | 
 
 #### Dataset Medium 2
 
 treshold used = 5
 
-| k  | Frequent Itemset                                                                                                       | Frequency | Elapsed Time (seconds)      | Cumulative Time (seconds) |
-|----|------------------------------------------------------------------------------------------------------------------------|-----------|------------------------------|----------------------------|
-| 1  | {'Noga Alon'}                                                                                                         | 634       | 0.005184000001463573         | 0.005184000001463573       |
-| 2  | {'Dirk Habich', 'Wolfgang Lehner'}                                                                                    | 184       | 0.044204249999893364         | 0.04938825000135694        |
-| 3  | {'Diego Calvanese', 'Giuseppe De Giacomo', 'Maurizio Lenzerini'}                                                  | 104       | 0.07484733299497748          | 0.12423558299633443        |
-| 4  | {'Diego Calvanese', 'Riccardo Rosati 0001', 'Giuseppe De Giacomo', 'Maurizio Lenzerini'}                          | 37        | 0.06122624999989057          | 0.185461832996225          |
-| 5  | {'Maurizio Lenzerini', 'Diego Calvanese', 'Riccardo Rosati 0001', 'Domenico Lembo', 'Giuseppe De Giacomo'}       | 25        | 0.06486616699839942          | 0.25032799999462444        |
-| 6  | {'Matthias Weidlich 0001', 'Jan Mendling', 'Stefan Zugal', 'Dirk Fahland', 'Hajo A. Reijers', 'Barbara Weber'}    | 11        | 0.09268004200566793          | 0.34300804199929236        |
-| 7  | {'Matthias Weidlich 0001', 'Jan Mendling', 'Stefan Zugal', 'Hajo A. Reijers', 'Barbara Weber', 'Dirk Fahland', 'Jakob Pinggera'} | 9         | 0.07100958399678348          | 0.41401762599607584        |
-| 8  | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'Rob Byrom'} | 6         | 0.08745191699563293          | 0.5014695429917088         |
-| 9  | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'James Magowan', 'Roney Cordenonsi'} | 6         | 0.05942191700160038          | 0.5608914599933092         |
-| 10 | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'James Magowan', 'Roney Cordenonsi', 'Rob Byrom'} | 6         | 0.06484062499657739          | 0.6257320849898866         |
-| 11 | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'James Magowan', 'Roney Cordenonsi', 'Linda Cornwall', 'Rob Byrom'} | 6         | 0.018852208995667752         | 0.6445842939855544         |
-| 12 | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'James Magowan', 'Roney Cordenonsi', 'Linda Cornwall', 'Paul Taylor', 'Andrew W. Cooke'} | 6         | 0.008063125002081506         | 0.6526474189876359         |
-| 13 | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'Rob Byrom', 'James Magowan', 'Roney Cordenonsi', 'Linda Cornwall', 'Paul Taylor', 'Andrew W. Cooke', 'Antony J. Wilson'} | 6         | 0.0035864590026903898        | 0.6562338779903263         |
-| 14 | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'Rob Byrom', 'James Magowan', 'Roney Cordenonsi', 'Linda Cornwall', 'Paul Taylor', 'Andrew W. Cooke', 'Antony J. Wilson', 'Norbert Podhorszki'} | 6         | 0.0016556249975110404        | 0.6578895029878373         |
-| 15 | {'Steve Fisher', 'Werner Nutt', 'Steve Hicks', "David O'Callaghan", 'Brian A. Coghlan', 'Stuart Kenny', 'Abdeslem Djaoui', 'Rob Byrom', 'James Magowan', 'Roney Cordenonsi', 'Linda Cornwall', 'Paul Taylor', 'Andrew W. Cooke', 'Antony J. Wilson', 'Norbert Podhorszki'} | 6         | 0.0007391670005745254        | 0.6586286699884119         |
+| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+|---|------------|---------|------------------|---------------------|
+| 1 | Noga Alon | 634 | 0.004588 | 0.004588 |
+| 2 | Dirk Habich, Wolfgang Lehner | 184 | 0.043097 | 0.047686 |
+| 3 | Maurizio Lenzerini, Giuseppe De Giacomo, Diego Calvanese | 104 | 0.074677 | 0.122362 |
+| 4 | Maurizio Lenzerini, Giuseppe De Giacomo, Riccardo Rosati 0001, Diego Calvanese | 37 | 0.060328 | 0.182690 |
+| 5 | Domenico Lembo, Maurizio Lenzerini, Giuseppe De Giacomo, Riccardo Rosati 0001, Diego Calvanese | 25 | 0.063571 | 0.246261 |
+| 6 | Hajo A. Reijers, Stefan Zugal, Dirk Fahland, Jan Mendling, Matthias Weidlich 0001, Barbara Weber | 11 | 0.088002 | 0.334263 |
+| 7 | Hajo A. Reijers, Stefan Zugal, Dirk Fahland, Jan Mendling, Matthias Weidlich 0001, Jakob Pinggera, Barbara Weber | 9 | 0.069009 | 0.403273 |
+| 8 | Brian A. Coghlan, Andrew W. Cooke, Linda Cornwall, Abdeslem Djaoui, Antony J. Wilson, Steve Hicks, Steve Fisher, Stuart Kenny | 6 | 0.082689 | 0.485962 |
+| 9 | Brian A. Coghlan, Andrew W. Cooke, Linda Cornwall, Abdeslem Djaoui, Antony J. Wilson, Steve Hicks, Steve Fisher, James Magowan, Stuart Kenny | 6 | 0.057364 | 0.543326 |
+| 10 | Brian A. Coghlan, Andrew W. Cooke, Linda Cornwall, Abdeslem Djaoui, Antony J. Wilson, Steve Hicks, Steve Fisher, James Magowan, Werner Nutt, David O'Callaghan | 6 | 0.041579 | 0.584905 |
+| 11 | Brian A. Coghlan, Andrew W. Cooke, Linda Cornwall, Abdeslem Djaoui, Antony J. Wilson, Steve Hicks, Steve Fisher, James Magowan, Werner Nutt, David O'Callaghan, Paul Taylor | 6 | 0.065246 | 0.650151 |
+| 12 | Brian A. Coghlan, Andrew W. Cooke, Linda Cornwall, Abdeslem Djaoui, Antony J. Wilson, Steve Hicks, Steve Fisher, James Magowan, Werner Nutt, David O'Callaghan, Rob Byrom, Paul Taylor | 6 | 0.007334 | 0.657485 |
+| 13 | Brian A. Coghlan, Andrew W. Cooke, Abdeslem Djaoui, Linda Cornwall, Antony J. Wilson, Steve Hicks, Steve Fisher, James Magowan, Werner Nutt, David O'Callaghan, Rob Byrom, Roney Cordenonsi, Paul Taylor | 6 | 0.002906 | 0.660391 |
+| 14 | Brian A. Coghlan, Andrew W. Cooke, Linda Cornwall, Abdeslem Djaoui, Antony J. Wilson, Steve Hicks, Steve Fisher, James Magowan, Werner Nutt, David O'Callaghan, Rob Byrom, Roney Cordenonsi, Norbert Podhorszki, Stuart Kenny | 6 | 0.001273 | 0.661664 |
+| 15 | Brian A. Coghlan, Andrew W. Cooke, Linda Cornwall, Abdeslem Djaoui, Antony J. Wilson, Stuart Kenny, Steve Hicks, Steve Fisher, James Magowan, Werner Nutt, David O'Callaghan, Rob Byrom, Roney Cordenonsi, Norbert Podhorszki, Paul Taylor | 6 | 0.000911 | 0.662575 |
+
 
 #### Dataset Large
 
 treshold used = 25
 
-| k  | Frequent Itemset                                                                                                       | Frequency | Elapsed Time (seconds)      | Cumulative Time (seconds) |
-|----|------------------------------------------------------------------------------------------------------------------------|-----------|------------------------------|----------------------------|
-| 1  | {'H. Vincent Poor'}                                                                                                   | 906       | 0.30515120799827855          | 0.30515120799827855        |
-| 2  | {'Makoto Takizawa 0001', 'Tomoya Enokido'}                                                                           | 242       | 2.21516820800025             | 2.5203194159985285         |
-| 3  | {'Tetsuya Ogata', 'Kazunori Komatani', 'Hiroshi G. Okuno'}                                                         | 122       | 0.8413427920022514           | 3.36166220700078           |
-| 4  | {'Arnaud Virazel', 'Patrick Girard 0001', 'Luigi Dilillo', 'Alberto Bosio'}                                        | 53        | 0.39790841699868906          | 3.759570623999469          |
-| 5  | {'Margaret J. Wright', 'Katie McMahon', 'Arthur W. Toga', 'Greig I. de Zubicaray', 'Paul M. Thompson'}            | 44        | 0.2104743750023772           | 3.9700450000018464         |
-| 6  | {'Alberto Gil-Solla', 'Ana Fernández Vilas', 'José Juan Pazos-Arias', 'Manuel Ramos Cabrer', 'Rebeca P. Díaz Redondo', 'Jorge García Duque'} | 31        | 0.10827104099735152                         | 4.078316041999198           |
+| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+|---|------------|---------|------------------|---------------------|
+| 1 | H. Vincent Poor | 906 | 0.322604 | 0.322604 |
+| 2 | Makoto Takizawa 0001, Tomoya Enokido | 242 | 2.436293 | 2.758897 |
+| 3 | Kazunori Komatani, Tetsuya Ogata, Hiroshi G. Okuno | 122 | 0.897391 | 3.656288 |
+| 4 | Patrick Girard 0001, Alberto Bosio, Luigi Dilillo, Arnaud Virazel | 53 | 0.412360 | 4.068648 |
+| 5 | Arthur W. Toga, Paul M. Thompson, Greig I. de Zubicaray, Katie McMahon, Margaret J. Wright | 44 | 0.217062 | 4.285710 |
+| 6 | José Juan Pazos-Arias, Rebeca P. Díaz Redondo, Jorge García Duque, Alberto Gil-Solla, Ana Fernández Vilas, Manuel Ramos Cabrer | 31 | 0.110591 | 4.396301 |
 
 #### Dataset ALL
 
 treshold used = 25
 
-kheb gene tijd sorryryyyyy
+| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+|---|------------|---------|------------------|---------------------|
+| 1 | H. Vincent Poor | 2986 | 1.300479 | 1.300479 |
+| 2 | Tomoya Enokido, Makoto Takizawa 0001 | 531 | 18.661060 | 19.961539 |
+| 3 | Shaoping Ma, Min Zhang 0006, Yiqun Liu 0001 | 282 | 6.117888 | 26.079427 |
+| 4 | Ramon Casellas, Raul Muñoz 0001, Ricardo Martínez 0001, Ricard Vilalta | 149 | 3.489365 | 29.568792 |
+| 5 | Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 100 | 1.572940 | 31.141731 |
+| 6 | Andrew Prout, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 98 | 1.578864 | 32.720595 |
+| 7 | Antonio Rosa, Andrew Prout, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 96 | 1.798832 | 34.519427 |
+| 8 | Antonio Rosa, William Arcand, Andrew Prout, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 94 | 2.365928 | 36.885355 |
+| 9 | Antonio Rosa, William Arcand, Andrew Prout, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 92 | 2.684623 | 39.569978 |
+| 10 | Antonio Rosa, William Arcand, Andrew Prout, Vijay Gadepally, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 83 | 2.583578 | 42.153556 |
+| 11 | Antonio Rosa, William Arcand, Charles Yee, Andrew Prout, Vijay Gadepally, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 79 | 2.041043 | 44.194599 |
+| 12 | Antonio Rosa, William Arcand, Michael Jones 0001, Andrew Prout, Vijay Gadepally, Lauren Milechin, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 69 | 1.292799 | 45.487398 |
+| 13 | Antonio Rosa, William Arcand, Michael Jones 0001, Charles Yee, Andrew Prout, Vijay Gadepally, Lauren Milechin, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 65 | 0.629513 | 46.116911 |
+| 14 | Antonio Rosa, William Arcand, Michael Jones 0001, Charles Yee, Andrew Prout, Vijay Gadepally, Siddharth Samsi, Lauren Milechin, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 61 | 0.250736 | 46.367647 |
+| 15 | Antonio Rosa, William Arcand, Michael Jones 0001, Charles Yee, Andrew Prout, Vijay Gadepally, Siddharth Samsi, Julie Mullen, Lauren Milechin, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor | 51 | 0.092668 | 46.460314 |
+| 16 | Antonio Rosa, Jeremy Kepner, William Arcand, Michael Jones 0001, Charles Yee, Andrew Prout, Vijay Gadepally, Siddharth Samsi, Lauren Milechin, Chansup Byun, Albert Reuther, Peter Michaleas, Julie Mullen, Matthew Hubbell, David Bestor, Anna Klein | 40 | 0.040990 | 46.501304 |
+| 17 | Antonio Rosa, William Arcand, Michael Jones 0001, Charles Yee, Andrew Prout, Vijay Gadepally, Siddharth Samsi, Julie Mullen, Michael Houle 0001, Lauren Milechin, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor, Anna Klein | 26 | 0.026291 | 46.527596 |
+

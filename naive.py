@@ -22,7 +22,12 @@ class Naive():
             )
         )
 
-    def run(self, k: int) -> None:
+    def run(self, k: int):
+        """
+        Entry point of naive implemenation
+
+        It returns the maximal author set of size `k` using a very naive implementation
+        """
         self.counter = defaultdict()
 
         # we can filter anything below k because it isnt requested
@@ -31,6 +36,23 @@ class Naive():
                 key = frozenset(combination)
                 self.counter[key] = self.counter.get(key, 0) + 1
         if (self.counter):
-            print(max(self.counter.items(), key=operator.itemgetter(1)))
+            return (k, max(self.counter.items(), key=operator.itemgetter(1)))
         else:
-            print(f"Maximal author set of size {k} doesnt exist")
+            (k, None)
+
+    def create_markdown_table(self, data: list[tuple[int, frozenset[str], int, float]]) -> str:
+        """
+        Creates a Markdown table for the results given by running the naive implemenation on multiple `k`'s
+        
+        The format of the table is:
+
+        | k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+        """
+        markdown = "| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |\n"
+        markdown +="|---|------------|---------|------------------|---------------------|\n"
+        cumulative_time = 0
+        for (k, subset, support, time_elapsed) in data:
+            cumulative_time += time_elapsed
+            subset_str = ", ".join(subset)
+            markdown += f"| {k} | {subset_str} | {support} | {time_elapsed:.6f} | {cumulative_time:.6f} |\n"
+        return markdown

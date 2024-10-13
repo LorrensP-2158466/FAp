@@ -1,8 +1,8 @@
-from typing import Callable, Self
+from typing import Any, Callable, Self
 import polars as pl
 import os
 
-type ExplorerResult = tuple[str, int]
+type ExplorerResult = tuple[str, Any]
 
 class DataExplorer():
     '''
@@ -40,6 +40,9 @@ class DataExplorer():
 
 
     def perform_all(self) -> list[ExplorerResult]:
+        """
+        Performs All the data explorations and returns their results
+        """
         return [ result for fun in self.choices if (result := self.hanlde_method(fun)) is not None ]
 
 
@@ -103,6 +106,10 @@ class DataExplorer():
 
 
     def hanlde_method(self, fun: str) -> ExplorerResult | None:
+        """
+        Handles a exploration method based on the name given and returns it's result
+        if there is one.
+        """
         match fun:
             case "all" | "default":
                 return None  # or some default action
@@ -128,7 +135,10 @@ class DataExplorer():
 
 
     def perform(self, functions: list[str]) -> list[ExplorerResult]:
-
+        """
+        Entry point of the Data exploration class.
+        It Handles all the methods given and returns their results in a list
+        """
         if "all" in functions:
             return self.perform_all()
         if "default" in functions:

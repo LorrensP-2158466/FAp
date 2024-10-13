@@ -9,7 +9,9 @@ import operator
 
 class APriori():
     """
-    Class to configure and run apriori algorithm on given dataset
+    Class to configure and run apriori algorithm on a given dataset
+
+    The main entry point is the "run" method
     """
 
     df: pl.DataFrame
@@ -39,19 +41,14 @@ class APriori():
             )
         )
 
-    """
-    pass 1: frequent singletons
-        count support every singelton
-        filter out non-frequent ones
-    pass 2: find frequent pairs
 
-    pass 3: find frequent triples
-    ...
-
-    pair (i, j):
-        if i and j are frequent -> count (i, j)
-    """
     def run(self, k: int):
+        """
+        Main entry point of the Apriori implementation
+        
+        It calculates till the k'th maximal authorset and yields all intermidiate maximal
+        author sets
+        """
         self.produce_frequent_singletons()
         yield (1, max(self.singleton_map.items(), key=operator.itemgetter(1)))
         if k == 1:
@@ -72,28 +69,17 @@ class APriori():
             if len(self.prev_map) > 0:
                 yield (pass_nr, max(self.prev_map.items(), key=operator.itemgetter(1)))
             else:
-                return
+                yield (pass_nr, None)
+                return 
+        return
 
-
-    # {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-    # frequent : {1, 2, 3, 4, 5}
-    # frequent pairs : {1, 2}, {2, 3}, {3, 4}, and {4, 5} => l_k_prev
-    # find frequent triples
-    # basket =  {2, 3, 4, 5}
-    # possible triples: {2, 3, 4}, {2, 3, 5}, {2, 4, 5}, {3, 4, 5}
-    # C_K:
-    #   {2, 3, 4}: {2, 3}, {2, 4}, {3, 4} => no
-    #   {2, 3, 5}: {2, 3}, {2, 5}, {3, 5} => no
-    # L_K: prune C_K based on treshold
-
-    # {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-    # frequent = {1, 3, 4, 6, 7, 9}
-    # example basket: {2, 4, 6, 9}
-    # possible pairs: {2, 4}, {2, 6}, {2, 9}, {4, 6}, {4, 9}, {6, 9}
-    # {2, 4}? {2}, {4} => no
-    # {4, 6}? {4}, {6} => yes, cuz 4 and 6 are in frequent
 
     def count(self, k: int):
+        """
+        The count step of the apriori algorithm
+
+        Given a `k` it counts all authorsets of size `k`
+        """
         prev_frequents = frozenset(itertools.chain.from_iterable(self.prev_map))
         self.df = self.df.filter(pl.col("names").list.len() >= k)
         
@@ -123,24 +109,41 @@ class APriori():
                 self.curr_map[frozenset(candidate)] +=  1
 
 
-    # filter candidates based on treshold
+    
     def filter(self):
+        """
+        Filter the current counter map of author sets so only 
+        the frequent ones remain
+        """
         self.curr_map = self.filter_(self.curr_map)
 
 
     def produce_frequent_singletons(self):
+        """
+        Optimized implementation for producing all frequent singletons
+        """
+
+        # use dataframe and "sql" like methods to count the singletons
         df = (self.df
             .explode("names")
             .group_by("names")
             .agg(pl.count())
             .filter(pl.col("count") > self.treshold)
         )
+
         self.singleton_map = {
             frozenset([row[0]]): row[1] for row in df.iter_rows()
         }
 
 
     def produce_frequent_pairs(self):
+        """
+        Optimized implemantion for producing all frequent pairs 
+
+        This is a variation of the `count` method but it leaves out the L_{k-1} step because we have easier access
+        to the frequent singletons.
+        """
+        # create set of singleton map to create the pruned basket
         prev_frequents = frozenset(itertools.chain.from_iterable(self.singleton_map))
         df =  self.df.filter(pl.col("names").list.len() >= 2)
         for (basket, ) in df.iter_rows():
@@ -155,6 +158,9 @@ class APriori():
 
 
     def filter_pairs(self):
+        """
+        Filter step for the candidate pairs
+        """
         self.pairs_map = self.filter_(self.pairs_map)
 
 
@@ -162,3 +168,21 @@ class APriori():
         return {
             key: value for key, value in map.items() if value > self.treshold
         }
+
+    def create_markdown_table(self, data: list[tuple[int, frozenset[str], int, float]]) -> str:
+        """
+        Creates a Markdown table for the results given by running the apriori implemenation
+        
+        The format of the table is:
+
+        | k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
+        """
+
+        markdown = "| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |\n"
+        markdown +="|---|------------|---------|------------------|---------------------|\n"
+        cumulative_time = 0
+        for (k, subset, support, time_elapsed) in data:
+            cumulative_time += time_elapsed
+            subset_str = ", ".join(subset)
+            markdown += f"| {k} | {subset_str} | {support} | {time_elapsed:.6f} | {cumulative_time:.6f} |\n"
+        return markdown
