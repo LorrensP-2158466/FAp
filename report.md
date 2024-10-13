@@ -3,7 +3,7 @@
 
 papers_per_author weet ik niet hoe ik dat moet doen
 
-# ALL DONE ON MAC M1 2020 SEQUOIA 15.0
+# ALL MEASUREMENTS DONE ON MAC M1 2020 SEQUOIA 15.0
 
 ## Data Exploration
 
@@ -101,13 +101,50 @@ The code starts in the `main.py` file where while loop calls the generator of th
 and collects it's results. The reason we used a generator is because it makes it easier to collect to large `k`'s
 because the next call to the generator can use the results of the previous results.
 
-The `run` method is the main entry point and is structured like this:
+The `APriori.run(k)` method is the main entry point and is structured like this:
 
 - Produce frequent singletons and yield one of the maximal ones.
 - Produce frequent pairs and yield one of the maximal ones.
 - Produce the rest of the fruquent itemsets and yield one of the maximal ones.
 
+We chose to make seperate functions for cases k=1 and k=2. This way we can optimize them using some special properties.
+Lets now discuss each part of our implementation: <br> 
 
+**The general case for k > 2 (`Apriori.count()` and `Apriori.filter()`):** <br>
+The 'original/naive' explanation of the a priori algorithm says that for each basket:
+- Generate every combination of size k with the elements of the current basket
+- For each one of these combinations:
+    - Generate every combination of size k-1 of the
+    - Check for each combination if they are frequent (using the data of the previous iteration)
+    - If all combinations of size k-1 are frequent, then the set of size k is considered frequent and is added to the table (or has its count increased) <br>
+- Filter the table to only contain elements that have a count higher than the given treshold
+
+While this approach helps understand the algorithm, implementing it as described has several drawbacks. 
+The main issue is that generating every possible combination of size k for each basket leads to a combinatorial explosion, especially when the number of items in the baskets is large. It becomes even slower when considering the  need to generate combinations of size k−1 for each k-sized candidate. The number of calculations grows exponentially with the number of items, causing performance to degrade rapidly.
+Another problem with implementing it literally is that storing all combinations of size k and k−1 can require substantial (main) memory, particularly when dealing with large datasets. The need to repeatedly store combinations increases memory consumption and slows down the process due to frequent memory accesses. <br>
+
+To address these issues efficiently we came up with the following approach:
+1. We use two tables: `curr_map` for tracking the current frequent itemsets of size k, and `prev_map` for tracking the frequent itemsets of size k−1
+2. We only consider baskets containing at least k items
+3. We create a set `prev_frequents`, which includes every author who was frequent in iteration k-1
+4. As we loop through each basket, we discard any item not present in `prev_frequents`. If the resulting basket has fewer than k items, it is ignored
+5. We generate every combination of size k-1 from the filtered basket. If a combination is frequent (based on `prev_map`), we add its elements to a set `possible_candidates`. We now end up with a flat set that has **exactly** the elements that the frequent combinations of size k can exists of. This is also our main optimization: Unlike the naive approach, which generates combinations of size k and then checks their subsets of size, we restrict ourselves to generating the sets in `prev_map` that can be made of the items in the current basket, resulting in fewer combinations, fewer condition checks, and reduced memory usage
+6. Since we identified exactly which elements are in the sets of size k that are frequent, we only need to generate these combinations. If they are already in `curr_map` we increase the count by 1, otherwise we add them and set the count to 1 (note that we dont have any conditional checks in this step).
+7. When we have looped through each basket, the final thing to do is to filter each item that has a count less then the given treshold in `curr_map`
+
+**For pairs case (`Apriori.produce_frequent_pairs()`):** <br>
+Pairs are a special case of the previously mentioned algorithm due to the following reasons:
+- The previous iteration generates all frequent singletons (itemsets of size 1)
+- The sets `prev_frequents` and `prev_map` contain elements with the same amount of dimensions, namely one.
+- It is clear now that when k=2, steps 4 and 5 of the general algorithm essentially perform the same action: filtering the items in the current basket based on frequent singletons. As a result, we only need to perform either step 4 **or** step 5, but not both.
+
+In our implementation, we chose to skip step 5 for this specific case, as step 4 alone is sufficient for generating frequent pairs.
+
+
+**For singletons (`Apriori.produce_frequent_singletons()`):** <br>
+To count the singletons in the dataset we use the `group_by()` function provided by polars.
+It works perfectly for the k=1 case because we only count sets of size 1,
+and by using the built in polars funcitonality we make sure this step is as quick as possible.
 
 ## Implementation Results
 
