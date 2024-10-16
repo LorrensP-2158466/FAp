@@ -1,8 +1,6 @@
 # Report Apriori Assigment
 
 
-papers_per_author weet ik niet hoe ik dat moet doen
-
 # ALL MEASUREMENTS DONE ON MAC M1 2020 SEQUOIA 15.0
 
 ## Data Exploration

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from io import  TextIOWrapper
 import itertools
 import polars as pl
 import os
@@ -15,6 +16,7 @@ class APriori():
     """
 
     df: pl.DataFrame
+    file: TextIOWrapper
     dataset: str
     # for tiny and medium <=5
     # for larger <= 25
@@ -29,20 +31,10 @@ class APriori():
     def __init__(self, dataset_path: str, treshold = 5):
         self.treshold = treshold
         self.dataset = dataset_path
-        self.df =(
-            pl.read_csv(dataset_path,
-                has_header=False,
-                new_columns=["names"],
-                separator="\n",
-                n_threads=os.cpu_count() # we tested with 1 and we got the same results
-            )
-            .with_columns(
-                pl.col("names").str.split(",").alias("names")
-            )
-        )
 
 
-    def run(self, k: int):
+
+    def generate(self, k: int):
         """
         Main entry point of the Apriori implementation
         
@@ -53,14 +45,15 @@ class APriori():
         yield (1, max(self.singleton_map.items(), key=operator.itemgetter(1)))
         if k == 1:
             return
+        self.file = open(self.dataset)
 
         self.produce_frequent_pairs()
         self.prev_map = self.pairs_map
         yield (2, max(self.prev_map.items(), key=operator.itemgetter(1)))
-
         if k == 2:
             return
         for pass_nr in range(3,k+1):
+            self.file.seek(0)
             self.count(pass_nr)
             self.filter()
 
@@ -70,8 +63,32 @@ class APriori():
                 yield (pass_nr, max(self.prev_map.items(), key=operator.itemgetter(1)))
             else:
                 yield (pass_nr, None)
+                self.file.close()
                 return 
+        self.file.close()
         return
+
+    def calculate_maximal_authorset(self, k):
+        self.produce_frequent_singletons()
+        if k == 1:
+            return max(self.prev_map.items(), key=operator.itemgetter(1))
+        self.file = open(self.dataset)
+
+        self.produce_frequent_pairs()
+        self.prev_map = self.pairs_map
+        if k == 2:
+            return max(self.prev_map.items(), key=operator.itemgetter(1))
+        for pass_nr in range(3,k+1):
+            self.file.seek(0)
+            self.count(pass_nr)
+            self.filter()
+
+            if len(self.curr_map) == 0:
+                break
+            self.prev_map = self.curr_map
+            self.curr_map = defaultdict(int)
+        self.file.close()
+        return max(self.prev_map.items(), key=operator.itemgetter(1))
 
 
     def count(self, k: int):
@@ -81,9 +98,8 @@ class APriori():
         Given a `k` it counts all authorsets of size `k`
         """
         prev_frequents = frozenset(itertools.chain.from_iterable(self.prev_map))
-        self.df = self.df.filter(pl.col("names").list.len() >= k)
         
-        for (basket, ) in self.df.iter_rows():
+        for basket in filter(lambda b: len(b) >= k, map(lambda line: line.split(","), self.file)):
             # only take authors that where frequent in the previous iteration
             pruned_basket = prev_frequents.intersection(basket)
 
@@ -122,9 +138,19 @@ class APriori():
         """
         Optimized implementation for producing all frequent singletons
         """
-
+        df =(
+            pl.read_csv(self.dataset,
+                has_header=False,
+                new_columns=["names"],
+                separator="\n",
+                n_threads=os.cpu_count() # we tested with 1 and we got the same results
+            )
+            .with_columns(
+                pl.col("names").str.split(",").alias("names")
+            )
+        )
         # use dataframe and "sql" like methods to count the singletons
-        df = (self.df
+        df = (df
             .explode("names")
             .group_by("names")
             .agg(pl.count())
@@ -134,6 +160,7 @@ class APriori():
         self.singleton_map = {
             frozenset([row[0]]): row[1] for row in df.iter_rows()
         }
+        del df # be explicit
 
 
     def produce_frequent_pairs(self):
@@ -145,8 +172,7 @@ class APriori():
         """
         # create set of singleton map to create the pruned basket
         prev_frequents = frozenset(itertools.chain.from_iterable(self.singleton_map))
-        df =  self.df.filter(pl.col("names").list.len() >= 2)
-        for (basket, ) in df.iter_rows():
+        for basket in filter(lambda b: len(b) >= 2, map(lambda line: line.split(","), self.file)):
             # only take authors that where frequent in the previous iteration
             pruned_basket = prev_frequents.intersection(basket)
 

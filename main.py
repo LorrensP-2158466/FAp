@@ -105,28 +105,32 @@ def main():
             print(naive.create_markdown_table(results))
 
     elif args.command == "apriori":
-        apriori = APriori(args.dataset, args.treshold) # default treshold is 5
-        generator = apriori.run(args.k) # default k = 20
-        cummulative_time = 0
-        results = []
-        while True:
-            try:
-                # Get next authorset and time how long that takes
-                start_time = time.perf_counter() 
-                (k, result) = next(generator)  
-                end_time = time.perf_counter()  
-                elapsed_time = end_time - start_time
-                cummulative_time += elapsed_time
-                if result is not None:
-                    (author_set, support) = result
-                    results.append((k, author_set, support, elapsed_time))
-                print(f"Result of k={k}: {result}; elapsed in: {elapsed_time}")
-            except StopIteration:
-                # Break the loop when the generator is exhausted
-                break
-        if args.md:
-            print(apriori.create_markdown_table(results))
-        print(f"Calculating till {k} elapsed in: {cummulative_time}")
+        # apriori = APriori(args.dataset, args.treshold) # default treshold is 5
+        # generator = apriori.generate(args.k) # default k = 20
+        # cummulative_time = 0
+        # results = []
+        # while True:
+        #     try:
+        #         start_time = time.perf_counter() 
+        #         (k, result) = next(generator)  
+        #         end_time = time.perf_counter()  
+        #         elapsed_time = end_time - start_time
+        #         cummulative_time += elapsed_time
+        #         if result is not None:
+        #             (author_set, support) = result
+        #             results.append((k, author_set, support, elapsed_time))
+        #         print(f"Result of k={k}: {result}; elapsed in: {elapsed_time}")
+        #     except StopIteration:
+        #         # Break the loop when the generator is exhausted
+        #         break
+        # if args.md:
+        #     print(apriori.create_markdown_table(results))
+        # print(f"Calculating till {k} elapsed in: {cummulative_time}")
+        apriori = APriori(args.dataset, args.treshold)
+        start = time.perf_counter()
+        apriori.calculate_maximal_authorset(20)
+        end = time.perf_counter()
+        print(f"Calculating maximal author set of k=20 elapsed in: {end-start}")
 
 if __name__ == "__main__":
     main()
