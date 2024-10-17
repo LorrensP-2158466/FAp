@@ -1,78 +1,56 @@
 # Report Apriori Assigment
 
 
-papers_per_author weet ik niet hoe ik dat moet doen
-
-# ALL MEASUREMENTS DONE ON MAC M1 2020 SEQUOIA 15.0
-
-## Data Exploration
-
-We hebben voor de data exploratie 5 technieken gebruikt, de 2 die gegeven waren en nog 3 anderen:
-
-- Amount of Publications
-- Average Amount of Authors Per Paper
-- Unique Authors
-- Average Paper per Author
-- Papers per author (te veel voor in een tabel te weergeven)
+#### ALL MEASUREMENTS DONE ON MAC M1 2020 SEQUOIA 15.0
 
 
-### Dataset Tiny
+## The program
 
-| DataExploration Technique  | Result                |
-|----------------------------|----------------------|
-| Amount of Publications     | 629             |
-| Average Amount of Authors Per Paper  | 3.31637519872814    |
-| Unique Authors             | 290            |
-| Average Paper per Author   | 2.168965517241379    |
+The main entry point of the program is the python file [`main.py`](./main.py). We define the argument parser and based on those arguments we can run a different subprogram.
 
-### Dataset Medium
+You can ask the usage of the program by running:
 
-#### Medium 1
+```python main.py -h```
+Note: ignore the `positional arguments` and `options` section after the usage, this is boilerplate by argsparse which we can't remove...
 
-| DataExploration Technique  | Result                |
-|----------------------------|----------------------|
-| Amount of Publications     | 22,779             |
-| Average Amount of Authors Per Paper  | 3.467140787567496    |
-| Unique Authors             | 14,885            |
-| Average Paper per Author   | 1.5303325495465234    |
+There are 3 subprograms:
 
-#### Medium 2
+- data-expl
+- naive
+- apriori
 
-| DataExploration Technique  | Result                |
-|----------------------------|----------------------|
-| Amount of Publications     | 21,092              |
-| Average Amount of Authors Per Paper  | 4.006447942347809    |
-| Unique Authors             | 17,707            |
-| Average Paper per Author   | 1.1911673349522787    |
+They are straightforward in their function each with their own seperate args. The usage of the program is:
 
+```
+usage: main.py [ARGS] [SUBCOMMAND] [SUBCOMMAND ARGS]
 
+ARGS:
+    --md                  Output the results of th subcommand in a  markdown table
+    --dataset DATASETPATH Set the dataset path the subcommand should use
 
-### Dataset LARGE
+SUBCOMMAND:
+    data-expl Perform the data explorations
+    naive     Perform the naive algorithm on the dataset
+    apriori   Perform the apriori algorithm on the dataset
 
-| DataExploration Technique  | Result                |
-|----------------------------|----------------------|
-| Amount of Publications     | 2,004,723              |
-| Average Amount of Authors Per Paper | 3.0292613992057755    |
-| Unique Authors             | 1,258,951            |
-| Average Paper per Author   | 1.59237571597306    |
+SUCOMMAND ARGS:
+    data-expl:
+        --explorations=[DATA_EXPLS] Choose one or more data explorations to perform on the dataset.
+        --output-ppa                Output `papers_per_auhtor` technique to a csv file
+    naive:
+        --k Which maximal author set you would like to calculate
+    apriori:
+        --k int        Till which maximal author set you would like to calculate (this also outputs intermediate results)
+        --treshold int Set the treshold for the apriori algorithm
 
-### Dataset ALL
+DATA_EXPLS:
+    You can define multiple data_explorations seperated by a comma
+    all // does all the explorations
+    amt_publications, average_amt_authors, unique_authors, papers_per_author, average_paper_per_author, 
+    count_marc_dirk, most_papers_published_by_one_author, median_amt_authors
 
-| DataExploration Technique  | Result                |
-|----------------------------|----------------------|
-| Amount of Publications     | 7,142,501            |
-| Average Amount of Authors Per Paper | 3.381567324946822    |
-| Unique Authors             | 3,658,503            |
-| Average Paper per Author   | 1.952301528794701    |
-
-### Combined Data Exploration Table
-
-| DataExploration Technique           | Tiny                 | Medium 1             | Medium 2             | Large                | All                  |
-|-------------------------------------|----------------------|----------------------|----------------------|----------------------|----------------------|
-| Amount of Publications              | 629                  | 22,779               | 21,092               | 2,004,723            | 7,142,501            |
-| Average Amount of Authors Per Paper | 3.31637519872814     | 3.467140787567496    | 4.006447942347809    | 3.0292613992057755   | 3.381567324946822    |
-| Unique Authors                      | 290                  | 14,885               | 17,707               | 1,258,951            | 3,658,503            |
-| Average Paper per Author            | 2.168965517241379    | 1.5303325495465234   | 1.1911673349522787   | 1.59237571597306     | 1.952301528794701    |
+BDA Project frequent itemsets and apriori
+```
 
 
 ## Implementation details
@@ -80,16 +58,26 @@ We hebben voor de data exploratie 5 technieken gebruikt, de 2 die gegeven waren 
 ### Data exploration
 We chose to use the `polars` library to load the file and store its rows. It is a faster alternative to the `pandas` framework.
 We also used it in the implementation of the other algorithms to read and store the baskets from the file.
+
+
+
+We can perform data explorations by running the command:
+
+```
+python main.py --md --dataset [DATASET_PATH] data-expl --explorations=[EXPLORATIONS]
+```
+This will print a markdown table of the results to standard output. You can also leave out --md and just print raw results to standard output.
 ...
 
 ### Naive
 The code starts in the `main.py` file where a loop iteratively calls `Naive.run(k)`. The `Naive` object will then
 search for the most frequent itemset(s) of size k using a counter dictionary. It does 
 this by going through each basket/row of the table and:
+
 - Generating every combination of the current basket
-- For each combination: 
-    - if it is already in the counter dictionary, increase the count by one
-    - if it is a new entry, add it to the dict and set the counter to 1
+- For each combination:
+  - if it is already in the counter dictionary, increase the count by one
+  - if it is a new entry, add it to the dict and set the counter to 1
 
 After all baskets have been looped through it looks for the highest count, and returns one of the elements
 with this maximum count.
@@ -148,6 +136,35 @@ and by using the built in polars funcitonality we make sure this step is as quic
 
 ## Implementation Results
 
+### Data Exploration
+
+We used five techniques for data exploration, including the two that were provided and three additional ones:
+
+- Number of Publications
+- Average Number of Authors Per Paper
+- Unique Authors
+- Average Papers per Author
+- Papers per Author (too many to display in a table)
+
+The "papers per author" can be viewed in the standard output of the program when we run:
+```
+python3 ./main.py [DATASET_PATH] data-expl --explorations=papers_per_author
+```
+
+This will print a `polars.Datafram` to standard out, which will be truncated ofcourse, you can add the subcommand arg `--output_ppa` which will create a csv file with each name and their publication count. The name of the file will be the name of the dataset file followed by `papers_per_author`.
+
+We ran every technique (besides `count_marc_dirk` and `papers_per_author`) on every given dataset and got following results:
+
+#### Combined Data Exploration Table
+
+| DataExploration Technique           | Tiny                 | Medium 1             | Medium 2             | Large                | All                  |
+|-------------------------------------|----------------------|----------------------|----------------------|----------------------|----------------------|
+| Amount of Publications              | 629                  | 22,779               | 21,092               | 2,004,723            | 7,142,501            |
+| Average Amount of Authors Per Paper | 3.31637519872814     | 3.467140787567496    | 4.006447942347809    | 3.0292613992057755   | 3.381567324946822    |
+| Unique Authors                      | 290                  | 14,885               | 17,707               | 1,258,951            | 3,658,503            |
+| Average Paper per Author            | 2.168965517241379    | 1.5303325495465234   | 1.1911673349522787   | 1.59237571597306     | 1.952301528794701    |
+
+
 ### Naive implementation
 
 #### Dataset Tiny
@@ -188,7 +205,17 @@ and by using the built in polars funcitonality we make sure this step is as quic
 | 3 | Maurizio Lenzerini, Diego Calvanese, Giuseppe De Giacomo | 104 | 2.042030 | 2.286214 |
 | 4 | Riccardo Rosati 0001, Maurizio Lenzerini, Diego Calvanese, Giuseppe De Giacomo | 37 | 35.333536 | 37.619750 |
 
-Met K > 4 duurde het langer dan 20 minuten en gebruikte meer dan 50GB aan geheugen op de gebruikte machine.
+With K > 4, it took longer than 20 minutes and used more than 50GB of memory on the machine in use. This is due to the fact that we count every possible combination, which will take a very long time. At first this is rather strange, since the file size is smaller than the [Medium1](#dataset-medium-1) dataset. But if look back to our data exploration results we can see why this is. We will paste the results of `Medium1` and `Medium2` here:
+
+| DataExploration Technique           | Medium 1             | Medium 2             |
+|-------------------------------------|----------------------|----------------------|
+| Amount of Publications              | 22,779               | 21,092               |
+| Average Amount of Authors Per Paper | 3.467140787567496    | 4.006447942347809    |
+| Unique Authors                      | 14,885               | 17,707               |
+| Average Paper per Author            | 1.5303325495465234   | 1.1911673349522787   |
+
+Even though `Medium2` has less publications, it has more authors and more authors per paper and less papers per author. This will result in more combinations than `Medium1` that than need to be counted which will bottleneck the application.
+
 #### Dataset Large & ALL
 
 MOETEN WE EENS DE TIJD VOOR NEMEN OM TE RUNNEN
@@ -266,7 +293,10 @@ treshold used = 25
 
 #### Dataset ALL
 
-treshold used = 25
+On the dataset_all we used a treshold of 25 and got the following results, we also tried to find out how low we could set the treshold and still be able to calculate the author sets in 15 minutes.
+For our implementation this limit is s = 10 and we got a runtime of ~. The table for these results is shown after the table of treshold 25.
+
+Treshold used 25:
 
 | k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
 |---|------------|---------|------------------|---------------------|
@@ -288,3 +318,5 @@ treshold used = 25
 | 16 | Antonio Rosa, Jeremy Kepner, William Arcand, Michael Jones 0001, Charles Yee, Andrew Prout, Vijay Gadepally, Siddharth Samsi, Lauren Milechin, Chansup Byun, Albert Reuther, Peter Michaleas, Julie Mullen, Matthew Hubbell, David Bestor, Anna Klein | 40 | 0.040990 | 46.501304 |
 | 17 | Antonio Rosa, William Arcand, Michael Jones 0001, Charles Yee, Andrew Prout, Vijay Gadepally, Siddharth Samsi, Julie Mullen, Michael Houle 0001, Lauren Milechin, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor, Anna Klein | 26 | 0.026291 | 46.527596 |
 
+
+Treshold used 10:

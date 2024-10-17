@@ -11,13 +11,14 @@ class DataExplorer():
     # when adding a function
     # add that name to this list:
     choices = [
-                "all", "default", 
+                "all", 
                "amt_publications", "average_amt_authors", "unique_authors", "papers_per_author", "average_paper_per_author", 
                "count_marc_dirk", "most_papers_published_by_one_author", "median_amt_authors"
     ]
 
     df: pl.DataFrame
     def __init__(self, dataset_path: str) -> None:
+        self.dataset_path = dataset_path
         self.df = self.__create_dataframe(dataset_path)
 
 
@@ -36,6 +37,7 @@ class DataExplorer():
 
 
     def set_dataset_path(self, dataset_path: str):
+        self.dataset_path = dataset_path
         self.df = self.__create_dataframe(dataset_path)
 
 
@@ -92,7 +94,6 @@ class DataExplorer():
             .group_by("names")
             .agg(pl.count().alias("count"))
             )
-        print(result)
         return result
 
     
@@ -145,3 +146,25 @@ class DataExplorer():
             return self.perform_default()
                 # Use read_csv to read the file
         return [result for fun in functions if (result := self.hanlde_method(fun)) is not None ]
+
+    def create_markdown_table(self, results: list[ExplorerResult], output_ppa: bool = False):
+        markdown = "| Technique | Value |\n"
+        markdown +="|-----------|-------|\n"
+        for (technique, value) in results:
+            if technique == "papers_per_author" and output_ppa:
+                file_name = self.dataset_path.split(os.sep)[-1].split('.')[0] + "_papers_per_author.csv"
+                value.write_csv(file_name, include_header=False, separator=",")
+                continue
+            markdown += f"| {technique} | {value} |\n"
+        return markdown
+
+
+
+
+
+
+
+
+
+
+

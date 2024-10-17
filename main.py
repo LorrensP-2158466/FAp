@@ -1,8 +1,40 @@
 import argparse
+from pprint import pprint
 from apriori import APriori
 import data_exploration
 from naive import Naive
 import time
+
+def prog_usage(name=None):                                                            
+    return (
+'''%(prog)s [ARGS] [SUBCOMMAND] [SUBCOMMAND ARGS]
+
+ARGS:
+    --md                  Output the results of th subcommand in a  markdown table
+    --dataset DATASETPATH Set the dataset path the subcommand should use
+
+SUBCOMMAND:
+    data-expl Perform the data explorations
+    naive     Perform the naive algorithm on the dataset
+    apriori   Perform the apriori algorithm on the dataset
+
+SUCOMMAND ARGS:
+    data-expl:
+        --explorations=[DATA_EXPLS] Choose one or more data explorations to perform on the dataset.
+        --output-ppa                Output `papers_per_auhtor` technique to a csv file
+    naive:
+        --k Which maximal author set you would like to calculate
+    apriori:
+        --k int        Till which maximal author set you would like to calculate (this also outputs intermediate results)
+        --treshold int Set the treshold for the apriori algorithm
+
+DATA_EXPLS:
+    You can define multiple data_explorations seperated by a comma
+    all // does all the explorations
+    amt_publications, average_amt_authors, unique_authors, papers_per_author, average_paper_per_author, 
+    count_marc_dirk, most_papers_published_by_one_author, median_amt_authors
+''')
+
 
 def initialize_args_parser() -> argparse.ArgumentParser:
     """
@@ -24,7 +56,7 @@ def initialize_args_parser() -> argparse.ArgumentParser:
         - treshold | specify the treshold the algorithm should use
         - k | till which k (size of maximal authorset) we want to caluclate
     """
-    parser = argparse.ArgumentParser(description="BDA Project frequent itemsets and apriori")
+    parser = argparse.ArgumentParser(description="BDA Project frequent itemsets and apriori", usage=prog_usage(),epilog=None)
 
     parser.add_argument(
         "--dataset",
@@ -49,6 +81,13 @@ def initialize_args_parser() -> argparse.ArgumentParser:
         nargs="*",
         choices=data_exploration.DataExplorer.choices,
         help="Choose one or more data explorations to perform on the dataset.",
+    )
+
+    expl_parser.add_argument(
+        "--output-ppa",
+        help="Output `papers_per_auhtor` technique to a csv file",
+        action="store_const",
+        const=True
     )
 
 
@@ -84,7 +123,11 @@ def main():
 
     if args.command == "data-expl":
         explorer = data_exploration.DataExplorer(args.dataset)
-        print(explorer.perform(args.data_expl))
+        results = explorer.perform(args.explorations)
+        if args.md:
+            print(explorer.create_markdown_table(results, args.output_ppa))
+        else:
+            pprint(results)
 
     elif args.command == "naive":
         naive = Naive(args.dataset)
