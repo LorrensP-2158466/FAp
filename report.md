@@ -1,8 +1,6 @@
 # Report Apriori Assigment
 
-
 #### ALL MEASUREMENTS DONE ON MAC M1 2020 SEQUOIA 15.0
-
 
 ## The program
 
@@ -11,6 +9,7 @@ The main entry point of the program is the python file [`main.py`](./main.py). W
 You can ask the usage of the program by running:
 
 ```python main.py -h```
+
 Note: ignore the `positional arguments` and `options` section after the usage, this is boilerplate by argsparse which we can't remove...
 
 There are 3 subprograms:
@@ -58,8 +57,6 @@ BDA Project frequent itemsets and apriori
 ### Data exploration
 We chose to use the `polars` library to load the file and store its rows. It is a faster alternative to the `pandas` framework.
 We also used it in the implementation of the other algorithms to read and store the baskets from the file.
-
-
 
 We can perform data explorations by running the command:
 
@@ -117,8 +114,9 @@ To address these issues efficiently we came up with the following approach:
 3. We create a set `prev_frequents`, which includes every author who was frequent in iteration k-1
 4. As we loop through each basket, we discard any item not present in `prev_frequents`. If the resulting basket has fewer than k items, it is ignored
 5. We generate every combination of size k-1 from the filtered basket. If a combination is frequent (based on `prev_map`), we add its elements to a set `possible_candidates`. We now end up with a flat set that has **exactly** the elements that the frequent combinations of size k can exists of. This is also our main optimization: Unlike the naive approach, which generates combinations of size k and then checks their subsets of size k-1, we restrict ourselves to generating the sets in `prev_map` exist of the items in the current basket, resulting in fewer combinations, fewer condition checks, and reduced memory usage
-6. Since we identified exactly which elements are in the sets of size k that are frequent, we only need to generate these combinations. If they are already in `curr_map` we increase the count by 1, otherwise we add them and set the count to 1 (note that we dont have any conditional checks in this step).
-7. When we have looped through each basket, the final thing to do is to filter each item that has a count less then the given treshold in `curr_map`
+6. Since we identified exactly which elements are in the sets of size k that are frequent, we only need to generate these combinations and add them to the dict (note that we don't have any conditional checks in this step). 
+7. If they are already in `curr_map` we increase the count by 1, otherwise we add them and set the count to 1.
+8. When we have looped through each basket, the final thing to do is to filter each item that has a count less then the given treshold in `curr_map`
 
 **For pairs case (`Apriori.produce_frequent_pairs()`):** <br>
 Pairs are a special case of the previously mentioned algorithm due to the following reasons:
@@ -133,6 +131,16 @@ In our implementation, we chose to skip step 5 for this specific case, as step 4
 To count the singletons in the dataset we use the `group_by()` function provided by polars.
 It works perfectly for the k=1 case because we only count sets of size 1,
 and by using the built in polars funcitonality we make sure this step is as quick as possible.
+
+### Challenges and possible improvements
+#### Challenges
+When we initially implemented a naive version of the A Priori algorithm, it became clear that optimization was necessary. For small values of k the naive implementation was faster, and for higher values where naive failed, it was still very slow. We started to look for conceptual improvements at first and iteratively made it faster. <br>
+The first optimization involved only considering baskets of at least size k, reducing the number of iterations needed. We then found that generating candidate pairs directly was more efficient than iterating over the map and checking for their presence individually. Several other ideas were tested along the way; some proved totally ineffective, while others did not significant provide performance gains. Our main focus was on experimenting with loop order, which led to the most significant improvements in the end. <br> 
+After making conceptual enhancements, we employed tools like `cProfile` to apply targeted optimizations. The most important one was making specialized functions for the cases k=1 and k=2. Since these are "unqiue" cases, we could leverage specific attributes to make them faster. Also, when making a list or a dictionary, list/dictionary comprehension gave faster results than using `map()` or `filter()`, leading to further gains. <br>
+
+#### Improvements
+An additional optimization we considered was memoization. While generating combinations of size k-1 from the baskets, we noticed that some combinations appeared multiple times throughout the whole process. By storing the combinations made in previous iterations in a map, we could avoid recalculating them, potentially saving significant computation time. <br>
+However, we did not implement memoization due to limitations with `itertools.combinations()`. This built-in function is highly optimized, and since integrating our own memoization code is not possible, it would require custom combination generation, which could negate the benefits.
 
 ## Implementation Results
 
