@@ -213,7 +213,7 @@ We ran every technique (besides `count_marc_dirk` and `papers_per_author`) on ev
 | 3 | Maurizio Lenzerini, Diego Calvanese, Giuseppe De Giacomo | 104 | 2.042030 | 2.286214 |
 | 4 | Riccardo Rosati 0001, Maurizio Lenzerini, Diego Calvanese, Giuseppe De Giacomo | 37 | 35.333536 | 37.619750 |
 
-With K > 4, it took longer than 20 minutes and used more than 50GB of memory on the machine in use. This is due to the fact that we count every possible combination, which will take a very long time. At first this is rather strange, since the file size is smaller than the [Medium1](#dataset-medium-1) dataset. But if look back to our data exploration results we can see why this is. We will paste the results of `Medium1` and `Medium2` here:
+With k > 4, it took longer than 20 minutes and used more than 50GB of memory on the machine in use. This is due to the fact that we count every possible combination, which will take a very long time. At first this is rather strange, since the file size is smaller than the [Medium1](#dataset-medium-1) dataset. But if look back to our data exploration results we can see why this is. We will paste the results of `Medium1` and `Medium2` here:
 
 | DataExploration Technique           | Medium 1             | Medium 2             |
 |-------------------------------------|----------------------|----------------------|
@@ -261,7 +261,6 @@ treshold used = 5
 | 7 | Jan Mendling, Hajo A. Reijers, Stefan Zugal, Jakob Pinggera, Dirk Fahland, Matthias Weidlich 0001, Barbara Weber | 9 | 0.001704 | 0.124509 |
 | 8 | Daniela Loreti, Federico Chesani, Sergio Tessaris, Chiara Ghidini, Chiara Di Francescomarino, Fabrizio Maria Maggi, Paola Mello, Marco Montali | 6 | 0.000931 | 0.125440 |
 
-                                                                                                   | 
 
 #### Dataset Medium 2
 
