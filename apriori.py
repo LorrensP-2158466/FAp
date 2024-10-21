@@ -50,13 +50,13 @@ class APriori():
         author sets
         """
         self.produce_frequent_singletons()
-        yield (1, max(self.singleton_map.items(), key=operator.itemgetter(1)))
+        yield (1, len(self.singleton_map), max(self.singleton_map.items(), key=operator.itemgetter(1)))
         if k == 1:
             return
 
         self.produce_frequent_pairs()
         self.prev_map = self.pairs_map
-        yield (2, max(self.prev_map.items(), key=operator.itemgetter(1)))
+        yield (2, len(self.prev_map), max(self.prev_map.items(), key=operator.itemgetter(1)))
 
         if k == 2:
             return
@@ -67,9 +67,9 @@ class APriori():
             self.prev_map = self.curr_map
             self.curr_map = defaultdict(int)
             if len(self.prev_map) > 0:
-                yield (pass_nr, max(self.prev_map.items(), key=operator.itemgetter(1)))
+                yield (pass_nr, len(self.prev_map), max(self.prev_map.items(), key=operator.itemgetter(1)))
             else:
-                yield (pass_nr, None)
+                yield (pass_nr, 0, None) # ofcourse 0 and None
                 return 
         return
 
@@ -169,7 +169,7 @@ class APriori():
             key: value for key, value in map.items() if value > self.treshold
         }
 
-    def create_markdown_table(self, data: list[tuple[int, frozenset[str], int, float]]) -> str:
+    def create_markdown_table(self, data: list[tuple[int, int, frozenset[str], int, float]]) -> str:
         """
         Creates a Markdown table for the results given by running the apriori implemenation
         
@@ -178,11 +178,11 @@ class APriori():
         | k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
         """
 
-        markdown = "| k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |\n"
-        markdown +="|---|------------|---------|------------------|---------------------|\n"
+        markdown = "| k | Author Set | Support |# Maximal Author Sets| Time Elapsed (s) | Cumulative Time (s) |\n"
+        markdown +="|---|------------|---------|---------------------|------------------|---------------------|\n"
         cumulative_time = 0
-        for (k, subset, support, time_elapsed) in data:
+        for (k, count_maximals, subset, support, time_elapsed) in data:
             cumulative_time += time_elapsed
             subset_str = ", ".join(subset)
-            markdown += f"| {k} | {subset_str} | {support} | {time_elapsed:.6f} | {cumulative_time:.6f} |\n"
+            markdown += f"| {k} | {subset_str} | {support} | {count_maximals} | {time_elapsed:.6f} | {cumulative_time:.6f} |\n"
         return markdown

@@ -102,7 +102,7 @@ def initialize_args_parser() -> argparse.ArgumentParser:
     apriori_parser = subparsers.add_parser("apriori", help="Run apriori implementation")
     apriori_parser.add_argument(
         "--treshold",
-        help="Set threshold for apriori algorithm",
+        help="Set threshold for apriori algorithm, default = 5",
         type=int,
         default=5,
     )
@@ -132,6 +132,7 @@ def main():
     elif args.command == "naive":
         naive = Naive(args.dataset)
         results = []
+        print(f"Running naive implementation on k={args.k}")
         for k in range(1, args.k + 1): # default k = 20
             # run fully_df
             start_time = time.perf_counter()
@@ -139,8 +140,8 @@ def main():
             end_time = time.perf_counter()
             elapsed_time = end_time - start_time
             if result is not None:
-                (k, (author_set, support)) = result
-                results.append((k, author_set, support, elapsed_time))
+                (k, count_maximals, (author_set, support)) = result
+                results.append((k, count_maximals, author_set, support, elapsed_time))
             print(result)
             print(f"Calculating k={k} Elapsed in: {elapsed_time}\n")
         if args.md:
@@ -148,6 +149,8 @@ def main():
             print(naive.create_markdown_table(results))
 
     elif args.command == "apriori":
+        print(f"Running apriori implementation untill k={args.k} and treshold={args.treshold}")
+
         apriori = APriori(args.dataset, args.treshold) # default treshold is 5
         generator = apriori.run(args.k) # default k = 20
         cummulative_time = 0
@@ -156,13 +159,13 @@ def main():
             try:
                 # Get next authorset and time how long that takes
                 start_time = time.perf_counter() 
-                (k, result) = next(generator)  
+                (k, count_maximals, result) = next(generator)  
                 end_time = time.perf_counter()  
                 elapsed_time = end_time - start_time
                 cummulative_time += elapsed_time
                 if result is not None:
                     (author_set, support) = result
-                    results.append((k, author_set, support, elapsed_time))
+                    results.append((k, count_maximals, author_set, support, elapsed_time))
                 print(f"Result of k={k}: {result}; elapsed in: {elapsed_time}")
             except StopIteration:
                 # Break the loop when the generator is exhausted
