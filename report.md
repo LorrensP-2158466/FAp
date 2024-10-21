@@ -10,18 +10,18 @@ You can ask the usage of the program by running:
 
 ```python main.py -h```
 
-Note: ignore the `positional arguments` and `options` section after the usage, this is boilerplate by argsparse which we can't remove...
+Note: ignore the `positional arguments` and `options` section after the usage, this is boilerplate by argsparse which we can't remove.
 
 There are 3 subprograms:
-
 - data-expl
 - naive
 - apriori
 
 They are straightforward in their function each with their own seperate args. The usage of the program is:
 
+### Usage:
 ```
-usage: main.py [ARGS] [SUBCOMMAND] [SUBCOMMAND ARGS]
+main.py [ARGS] [SUBCOMMAND] [SUBCOMMAND ARGS]
 
 ARGS:
     --md                  Output the results of th subcommand in a  markdown table
@@ -34,7 +34,7 @@ SUBCOMMAND:
 
 SUCOMMAND ARGS:
     data-expl:
-        --explorations=[DATA_EXPLS] Choose one or more data explorations to perform on the dataset.
+        --explorations=<DATA_EXPLS> Choose one or more data explorations to perform on the dataset.
         --output-ppa                Output `papers_per_auhtor` technique to a csv file
     naive:
         --k Which maximal author set you would like to calculate
@@ -50,6 +50,41 @@ DATA_EXPLS:
 
 BDA Project frequent itemsets and apriori
 ```
+
+### Examples:
+```python
+python main.py --dataset=datasets/dataset_all.txt --apriori
+python main.py --dataset=datasets/dataset_medium1.txt --naive
+python main.py --dataset=datasets/dataset_medium2.txt --data-expl=papers_per_author,count_marc_dirk --output-ppa
+```
+
+## Data Exploration
+
+We used five techniques for data exploration, namely the two that were provided and three additional ones:
+
+- Number of Publications
+- Average Number of Authors Per Paper
+- Unique Authors
+- Average Papers per Author
+- Papers per Author (too many to display in a table)
+
+The "papers per author" can be viewed in the standard output of the program when we run:
+```
+python3 ./main.py [DATASET_PATH] data-expl --explorations=papers_per_author
+```
+
+This will print a `polars.Datafram` to standard out, which will be truncated ofcourse, you can add the subcommand arg `--output_ppa` which will create a csv file with each name and their publication count. The name of the file will be the name of the dataset file followed by `papers_per_author`.
+
+We ran every technique (besides `count_marc_dirk` and `papers_per_author`) on every given dataset and got following results:
+
+#### Combined Data Exploration Table
+
+| DataExploration Technique           | Tiny                 | Medium 1             | Medium 2             | Large                | All                  |
+|-------------------------------------|----------------------|----------------------|----------------------|----------------------|----------------------|
+| Amount of Publications              | 629                  | 22,779               | 21,092               | 2,004,723            | 7,142,501            |
+| Average Amount of Authors Per Paper | 3.31637519872814     | 3.467140787567496    | 4.006447942347809    | 3.0292613992057755   | 3.381567324946822    |
+| Unique Authors                      | 290                  | 14,885               | 17,707               | 1,258,951            | 3,658,503            |
+| Average Paper per Author            | 2.168965517241379    | 1.5303325495465234   | 1.1911673349522787   | 1.59237571597306     | 1.952301528794701    |
 
 
 ## Implementation details
@@ -144,35 +179,6 @@ However, we did not implement memoization due to limitations with `itertools.com
 
 ## Implementation Results
 
-### Data Exploration
-
-We used five techniques for data exploration, including the two that were provided and three additional ones:
-
-- Number of Publications
-- Average Number of Authors Per Paper
-- Unique Authors
-- Average Papers per Author
-- Papers per Author (too many to display in a table)
-
-The "papers per author" can be viewed in the standard output of the program when we run:
-```
-python3 ./main.py [DATASET_PATH] data-expl --explorations=papers_per_author
-```
-
-This will print a `polars.Datafram` to standard out, which will be truncated ofcourse, you can add the subcommand arg `--output_ppa` which will create a csv file with each name and their publication count. The name of the file will be the name of the dataset file followed by `papers_per_author`.
-
-We ran every technique (besides `count_marc_dirk` and `papers_per_author`) on every given dataset and got following results:
-
-#### Combined Data Exploration Table
-
-| DataExploration Technique           | Tiny                 | Medium 1             | Medium 2             | Large                | All                  |
-|-------------------------------------|----------------------|----------------------|----------------------|----------------------|----------------------|
-| Amount of Publications              | 629                  | 22,779               | 21,092               | 2,004,723            | 7,142,501            |
-| Average Amount of Authors Per Paper | 3.31637519872814     | 3.467140787567496    | 4.006447942347809    | 3.0292613992057755   | 3.381567324946822    |
-| Unique Authors                      | 290                  | 14,885               | 17,707               | 1,258,951            | 3,658,503            |
-| Average Paper per Author            | 2.168965517241379    | 1.5303325495465234   | 1.1911673349522787   | 1.59237571597306     | 1.952301528794701    |
-
-
 ### Naive implementation
 
 #### Dataset Tiny
@@ -233,7 +239,7 @@ MOETEN WE EENS DE TIJD VOOR NEMEN OM TE RUNNEN
 
 #### Dataset Tiny
 
-Treshold used = 5
+Treshold 5:
 
 | k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
 |---|------------|---------|------------------|---------------------|
@@ -248,7 +254,7 @@ Treshold used = 5
 
 #### Dataset Medium 1
 
-treshold used = 5
+treshold 5:
 
 | k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
 |---|------------|---------|------------------|---------------------|
@@ -264,7 +270,7 @@ treshold used = 5
 
 #### Dataset Medium 2
 
-treshold used = 5
+treshold 5:
 
 | k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
 |---|------------|---------|------------------|---------------------|
@@ -287,7 +293,7 @@ treshold used = 5
 
 #### Dataset Large
 
-treshold used = 25
+treshold 25:
 
 | k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
 |---|------------|---------|------------------|---------------------|
@@ -303,7 +309,7 @@ treshold used = 25
 On the dataset_all we used a treshold of 25 and got the following results, we also tried to find out how low we could set the treshold and still be able to calculate the author sets in 15 minutes.
 For our implementation this limit is s = 10 and we got a runtime of ~. The table for these results is shown after the table of treshold 25.
 
-Treshold used 25:
+Treshold 25:
 
 | k | Author Set | Support | Time Elapsed (s) | Cumulative Time (s) |
 |---|------------|---------|------------------|---------------------|
@@ -326,4 +332,4 @@ Treshold used 25:
 | 17 | Antonio Rosa, William Arcand, Michael Jones 0001, Charles Yee, Andrew Prout, Vijay Gadepally, Siddharth Samsi, Julie Mullen, Michael Houle 0001, Lauren Milechin, Chansup Byun, Albert Reuther, Peter Michaleas, Jeremy Kepner, Matthew Hubbell, David Bestor, Anna Klein | 26 | 0.026291 | 46.527596 |
 
 
-Treshold used 10:
+Treshold 10:
