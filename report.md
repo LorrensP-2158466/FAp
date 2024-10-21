@@ -175,7 +175,8 @@ After making conceptual enhancements, we employed tools like `cProfile` to apply
 
 #### Improvements
 An additional optimization we considered was memoization. While generating combinations of size k-1 from the baskets, we noticed that some combinations appeared multiple times throughout the whole process. By storing the combinations made in previous iterations in a map, we could avoid recalculating them, potentially saving significant computation time. <br>
-However, we did not implement memoization due to limitations with `itertools.combinations()`. This built-in function is highly optimized, and since integrating our own memoization code is not possible, it would require custom combination generation, which could negate the benefits.
+However, we did not implement memoization due to limitations with `itertools.combinations()`. This built-in function is highly optimized, and since integrating our own memoization code is not possible, it would require custom combination generation, which could negate the benefits. <br>
+We also experimented with opening the file directly in Python instead of using Polars, which resulted in a significant speed improvement for the k=2 case. However, this approach did not yield performance benefits for the other cases. To maintain cleaner and more consistent code, we decided against using two different file-opening methods in our program.
 
 ## Implementation Results
 
