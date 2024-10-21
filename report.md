@@ -477,5 +477,3 @@ Apriori is definitely more efficient and effective in finding frequent item sets
 - relatively fast (< 50 seconds for `all dataset`)
 - efficient in memory (a lot of pruning)
 - optimized for special cases (`k=1`, `k=2`)
-
-We are very happy with our final implementation of the assigment.
